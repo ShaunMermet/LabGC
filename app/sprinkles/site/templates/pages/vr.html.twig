@@ -1,0 +1,44 @@
+{% extends "@core/pages/index.html.twig" %}
+
+{% block stylesheets_page_group %}
+  
+{% endblock %}
+
+{% set page_active = "VR" %}
+
+{# Overrides blocks in head of base template #}
+{% block page_title %}{{translate("VR")}}{% endblock %}
+
+{% block page_description %}{{translate("VR.DESCRIPTION")}}{% endblock %}
+
+{% block body_matter %}
+  <script src="https://aframe.io/releases/0.5.0/aframe.min.js"></script>
+  <script src="https://rawgit.com/donmccurdy/aframe-extras/v2.1.1/dist/aframe-extras.loaders.min.js"></script>
+  <script src="//cdn.rawgit.com/donmccurdy/aframe-extras/v3.8.3/dist/aframe-extras.min.js"></script>
+  <div style="height: Calc(100vh - 199px);overflow: hidden;">
+    <a-scene>
+        <a-entity rotation="-40 0 0" camera="userHeight: 1.6" universal-controls="fly: true;movementEasingY: 15;"s></a-entity>
+      <a-assets>
+        <img id="groundTexture" src="ImgRsrc/VR/floor.jpg">
+          <img id="skyTexture" src="ImgRsrc/VR/sky3b.jpg">
+          <a-asset-item id="myPlyModel" src="ImgRsrc/VR/GlacierPos.ply"></a-asset-item>
+          <a-asset-item id="logo" src="ImgRsrc/VR/logo.ply"></a-asset-item>
+        </a-assets>
+        <a-entity ply-model="src: #logo" position="0 -0.708 -15.620" ></a-entity>
+        <a-entity ply-model="src: #myPlyModel" position="0 1 0" rotation="-90 -51.394 0" scale="0.02 0.02 0.02"></a-entity>
+        <!--<a-cylinder id="ground" src="#groundTexture" radius="30" height="0.1"></a-cylinder>
+        <a-sky id="background" src="#skyTexture" theta-length="90" radius="30"></a-sky>-->
+    </a-scene>
+  </div>
+  
+
+{% endblock %}
+
+
+
+{% block scripts_page_group %}
+  
+{% endblock %}
+{% block scripts_page %}
+  
+{% endblock %}

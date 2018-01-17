@@ -13,6 +13,7 @@ return array(
     'UserFrosting\\Tests\\' => array($baseDir . '/app/tests'),
     'UserFrosting\\System\\' => array($baseDir . '/app/system'),
     'UserFrosting\\Support\\' => array($vendorDir . '/userfrosting/support/src'),
+    'UserFrosting\\Sprinkle\\Site\\' => array($baseDir . '/app/sprinkles/site/src'),
     'UserFrosting\\Sprinkle\\Core\\' => array($baseDir . '/app/sprinkles/core/src'),
     'UserFrosting\\Sprinkle\\Admin\\' => array($baseDir . '/app/sprinkles/admin/src'),
     'UserFrosting\\Sprinkle\\Account\\' => array($baseDir . '/app/sprinkles/account/src'),

@@ -49,3 +49,6 @@ Temporary Items
 app/.env
 app/.env.old
 .htaccess
+app/logs/userfrosting.log
+ImgRsrc/maps/copter.xcf
+ImgRsrc/VR/GlacierPos.ply

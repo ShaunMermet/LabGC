@@ -1,0 +1,58 @@
+{% extends "@core/pages/index.html.twig" %}
+
+{% block stylesheets_page_group %}
+  
+{% endblock %}
+
+{% set page_active = "Operation" %}
+
+{# Overrides blocks in head of base template #}
+{% block page_title %}{{translate("OPERATION")}}{% endblock %}
+
+{% block page_description %}{{page.drone.drone_name}}{% endblock %}
+
+{% block body_matter %}
+  <div class="row">
+        <div class="col-md-12">
+            <div id="widget-droneOperations" class="box box-primary">
+                <div class="box-header">
+                    <h3 class="box-title pull-left"><i class="fa fa-fw fa-globe"></i> {{translate('OPERATIONS', 2)}}</h3>
+                    {% include "tables/table-tool-menu.html.twig" %}
+                </div>
+                <div class="box-body">
+                    {% include "tables/operations.html.twig" with {
+                            "table" : {
+                                "id" : "table-operations",
+                                "columns" : ["last_activity"]
+                            }
+                        }
+                    %}
+                </div>
+                <div class="box-footer">
+                    <button type="button" class="btn btn-success js-user-create">
+                        <i class="fa fa-plus-square"></i>  {{ translate("OPERATION.CREATE")}}
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+  
+
+{% endblock %}
+
+
+
+{% block scripts_page_group %}
+  
+{% endblock %}
+{% block scripts_page %}
+    <!-- Include page-specific variables -->
+    <script>
+        {% include "pages/partials/page.js.twig" %}
+    </script>
+
+    <!-- Include page-specific asset bundles -->
+    {{ assets.js('js/pages/register') | raw }}
+    <!-- Include page-specific JS -->
+    {{ assets.js('js/pages/droneOperations') | raw }}
+{% endblock %}

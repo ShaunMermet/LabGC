@@ -1,0 +1,82 @@
+{% extends "pages/abstract/default.html.twig" %}
+
+{% block stylesheets_page_group %}
+  
+{% endblock %}
+
+{% set page_active = "hud" %}
+
+{# Overrides blocks in head of base template #}
+{% block page_title %}{{translate("HUD")}}{% endblock %}
+
+{% block page_description %}{{translate("HUD.DESCRIPTION")}}{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+
+  <header class="main-header">
+    {% include "navigation/main-nav.html.twig" %}
+  </header>
+
+  <!-- Full Width Column -->
+  <div class="content-wrapper">
+    <div class="container" style="width:100%;max-width:calc(178vh - 328px);">
+        <!-- Content Header (Page header) -->
+        {% block content_header %}
+        <section class="content-header">
+          <h1>{% block header_title %}{{ block('page_title') }}{% endblock %}</h1>
+          {% if block('page_description') is not empty %}<h1><small>{% block header_description %}{{ block('page_description') }}{% endblock %}</small></h1>{% endif %}
+          {% block breadcrumb %}
+            {% include 'navigation/breadcrumb.html.twig' with {page_title: block('page_title')} %}
+          {% endblock %}
+          <div id="alerts-page"></div>
+        </section>
+        {% endblock %}
+        <section class="content">
+            {% block body_matter %}
+              <div>
+              <div id="full" style="max-width: calc(178vh - 359px);">
+                <div id="outer" style="position:relative;width:100%;padding-bottom: 56.25%;;border:1px solid black; overflow:hidden;">
+                  <div id='imageDiv' style="position: absolute;width:100%;">
+                    <img id='image' unselectable='on'  src='{{site.uri.public}}/ImgRsrc/HUD/BackgroundFullResized.png' width="100%" style="margin-left: -7.58%;margin-top: -101.85%;width: 115%;"/>
+                  </div>
+                  <div id='pitchDiv' style="position: absolute;width:100%;">
+                    <img id='pitchImage' unselectable='on' src='{{site.uri.public}}/ImgRsrc/HUD/pitch.png' width="100%" style="margin-left: -7.58%;margin-top: -101.85%;width: 115%;"/> 
+                  </div>
+                  <div style="position: absolute;width:100%;">
+                    <img id='rollImage' unselectable='on'  type="text/javascript" src='{{site.uri.public}}/ImgRsrc/HUD/roll.png' width="100%"/> 
+                  </div>
+                  <div style="position: absolute;width:100%;">
+                    <img id='image2' unselectable='on'  type="text/javascript" src='{{site.uri.public}}/ImgRsrc/HUD/fixed.png' width="100%"/> 
+                  </div>
+                </div>
+              </div>
+              </div>
+
+            {% endblock %}
+        </section>
+    </div>
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% block footer %}
+    {% include "pages/partials/footer.html.twig" %}
+  {% endblock %}
+</div>
+<!-- ./wrapper -->
+
+{% endblock %}
+
+
+
+
+
+{% block scripts_page_group %}
+  
+{% endblock %}
+{% block scripts_page %}
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://cdn.rawgit.com/wilq32/jqueryrotate/master/jQueryRotate.js"></script>
+  {{ assets.js('js/hud') | raw }}
+{% endblock %}

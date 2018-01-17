@@ -1,0 +1,18 @@
+{
+    "name": "labGC/site",
+    "type": "sprinkle",
+    "description": "Site sprinkle for labgc site.",
+    "license" : "MIT",
+    "authors" : [
+        {
+            "name": "Shaun Mermet",
+            "homepage": "http://enroute1.com/"
+        }
+    ],
+    "version": "1.0.0",
+	"autoload": {
+        "psr-4": {
+            "UserFrosting\\Sprinkle\\Site\\": "src/"
+        }
+    }
+}

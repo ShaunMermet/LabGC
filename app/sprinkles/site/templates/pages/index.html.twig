@@ -1,0 +1,63 @@
+{% extends "@core/pages/index.html.twig" %}
+
+{% block stylesheets_page_group %}
+  
+{% endblock %}
+{% block stylesheets_page %}
+    <!-- Page-specific CSS asset bundle -->
+    {{ assets.css('css/form-widgets') | raw }}
+{% endblock %}
+
+{% set page_active = "home" %}
+
+{# Overrides blocks in head of base template #}
+{% block page_title %}{{translate("HOME")}}{% endblock %}
+
+{% block page_description %}{{translate("PORTAL.WELCOME")}}{% endblock %}
+
+{% block body_matter %}
+  <div id="linediv" style="display:flex">
+  <div id="googleMap" style="height:calc(100vh - 198px);width: 80%;"></div>
+  <div class="row">
+      <div class="col-md-12">
+          <div id="widget-drones" class="box box-primary">
+              <div class="box-header">
+                  <h3 class="box-title pull-left"><i class="fa fa-cab"></i> {{translate('DRONES', 2)}}</h3>
+                  {% include "tables/table-tool-menu.html.twig" %}
+              </div>
+              <div class="box-body">
+                  {% include "tables/drones.html.twig" with {
+                          "table" : {
+                              "id" : "table-drone",
+                              "columns" : ["last_activity"]
+                          }
+                      }
+                  %}
+              </div>
+              <div class="box-footer">
+                  <button type="button" class="btn btn-success js-user-create">
+                      <i class="fa fa-plus-square"></i>  {{ translate("DRONE.CREATE")}}
+                  </button>
+              </div>
+          </div>
+      </div>
+  </div>
+  </div>
+  <script>
+    
+  </script>
+
+  
+
+{% endblock %}
+
+
+
+{% block scripts_page %}
+  <!-- Include page-specific JS -->
+    {{ assets.js('js/map') | raw }}
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUabB007mdkmQVbOD0oFcRakntnn9Snqw&callback=myMap"></script>
+
+  <!-- Include page-specific JS -->
+    {{ assets.js('js/pages/drones') | raw }}
+{% endblock %}

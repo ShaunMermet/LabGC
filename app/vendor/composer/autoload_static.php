@@ -33,6 +33,7 @@ class ComposerStaticInit2e7c54cb2a4867a6de7bfdf3c1bd95ff
             'UserFrosting\\Tests\\' => 19,
             'UserFrosting\\System\\' => 20,
             'UserFrosting\\Support\\' => 21,
+            'UserFrosting\\Sprinkle\\Site\\' => 27,
             'UserFrosting\\Sprinkle\\Core\\' => 27,
             'UserFrosting\\Sprinkle\\Admin\\' => 28,
             'UserFrosting\\Sprinkle\\Account\\' => 30,
@@ -158,6 +159,10 @@ class ComposerStaticInit2e7c54cb2a4867a6de7bfdf3c1bd95ff
         'UserFrosting\\Support\\' => 
         array (
             0 => __DIR__ . '/..' . '/userfrosting/support/src',
+        ),
+        'UserFrosting\\Sprinkle\\Site\\' => 
+        array (
+            0 => __DIR__ . '/../../..' . '/app/sprinkles/site/src',
         ),
         'UserFrosting\\Sprinkle\\Core\\' => 
         array (

@@ -15,7 +15,7 @@
  * @category   Mockery
  * @package    Mockery
  * @subpackage UnitTests
- * @copyright  Copyright (c) 2010-2014 Pádraic Brady (http://blog.astrumfutura.com)
+ * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
  * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
  */
 
@@ -23,11 +23,6 @@ use Mockery\Adapter\Phpunit\MockeryTestCase;
 
 class Mockery_MockTest extends MockeryTestCase
 {
-    /**
-     * @var \Mockery\Container
-     */
-    public $container;
-
     public function setup()
     {
         $this->container = new \Mockery\Container(\Mockery::getDefaultGenerator(), \Mockery::getDefaultLoader());
@@ -96,13 +91,6 @@ class Mockery_MockTest extends MockeryTestCase
         assertThat(nullValue($mock->nonExistingMethod()));
     }
 
-    public function testShouldIgnoreDebugInfo()
-    {
-        $mock = $this->container->mock('ClassWithDebugInfo');
-
-        $mock->__debugInfo();
-    }
-
     /**
      * @expectedException Mockery\Exception
      */
@@ -152,6 +140,29 @@ class Mockery_MockTest extends MockeryTestCase
         $exception = Mockery::mock('Exception');
         $this->assertInstanceOf('Exception', $exception);
     }
+
+    public function testCanMockSubclassOfException()
+    {
+        $errorException = Mockery::mock('ErrorException');
+        $this->assertInstanceOf('ErrorException', $errorException);
+        $this->assertInstanceOf('Exception', $errorException);
+    }
+
+    public function testCallingShouldReceiveWithoutAValidMethodName()
+    {
+        $mock = Mockery::mock();
+
+        $this->setExpectedException("InvalidArgumentException", "Received empty method name");
+        $mock->shouldReceive("");
+    }
+
+    /**
+     * @expectedException Mockery\Exception
+     */
+    public function testShouldThrowExceptionWithInvalidClassName()
+    {
+        $this->container->mock('ClassName.CannotContainDot');
+    }
 }
 
 
@@ -181,13 +192,5 @@ class ClassWithMethods
     public function bar()
     {
         return 'bar';
-    }
-}
-
-class ClassWithDebugInfo
-{
-    public function __debugInfo()
-    {
-        return array('test' => 'test');
     }
 }

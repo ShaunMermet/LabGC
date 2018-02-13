@@ -1,0 +1,28 @@
+{% extends "@core/pages/index.html.twig" %}
+
+{% block stylesheets_page_group %}
+  
+{% endblock %}
+
+{% set page_active = "WIP" %}
+
+{# Overrides blocks in head of base template #}
+{% block page_title %}{{translate("WIP")}}{% endblock %}
+
+{% block page_description %}{{translate("WIP.WORKINPROGRESS")}}{% endblock %}
+
+{% block body_matter %}
+  <h1>Work in progress, sorry :'(
+  </h1>
+  
+
+{% endblock %}
+
+
+
+{% block scripts_page_group %}
+  
+{% endblock %}
+{% block scripts_page %}
+  
+{% endblock %}

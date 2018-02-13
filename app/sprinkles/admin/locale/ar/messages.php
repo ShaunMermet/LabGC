@@ -1,12 +1,13 @@
 <?php
-
 /**
- * ar
+ * UserFrosting (http://www.userfrosting.com)
  *
- * Modern Standard Arabic message token translations for the 'admin' sprinkle
+ * @link      https://github.com/userfrosting/UserFrosting
+ * @license   https://github.com/userfrosting/UserFrosting/blob/master/licenses/UserFrosting.md (MIT License)
  *
- * @package UserFrosting
- * @link http://wwwuserfrostingcom/components/#i18n
+ * Modern Standard Arabic message token translations for the 'admin' sprinkle.
+ *
+ * @package userfrosting\i18n\ar
  * @author Alexander Weissman and Abdullah Seba
  */
 
@@ -28,6 +29,7 @@ return [
     ],
 
     "DASHBOARD"             => "لوحة القيادة",
+    "NO_FEATURES_YET"       => "لا يبدو أن أي ميزات تم إعدادها لهذا الحساب حتى الآن. ربما لم يتم تنفيذها بعد، أو ربما شخص نسي أن يعطيك الوصول. في كلتا الحالتين، نحن سعداء أن يكون لك على متن!",
     "DELETE_MASTER"         => "لا يمكنك حذف الحساب الرئيسي",
     "DELETION_SUCCESSFUL"   => "المستعمل <strong>{{user_name}}</strong> حذف بنجاح",
     "DETAILS_UPDATED"       => "جدد تفاصيل الحساب للمستخدم <strong>{{user_name}}</strong>",

@@ -41,6 +41,7 @@ use UserFrosting\I18n\LocalePathBuilder;
 use UserFrosting\I18n\MessageTranslator;
 use UserFrosting\Session\Session;
 use UserFrosting\Sprinkle\Core\Error\ExceptionHandlerManager;
+use UserFrosting\Sprinkle\Core\Error\Handler\NotFoundExceptionHandler;
 use UserFrosting\Sprinkle\Core\Log\MixedFormatter;
 use UserFrosting\Sprinkle\Core\Mail\Mailer;
 use UserFrosting\Sprinkle\Core\Alert\CacheAlertStream;
@@ -51,8 +52,8 @@ use UserFrosting\Sprinkle\Core\Throttle\ThrottleRule;
 use UserFrosting\Sprinkle\Core\Twig\CoreExtension;
 use UserFrosting\Sprinkle\Core\Util\CheckEnvironment;
 use UserFrosting\Sprinkle\Core\Util\ClassMapper;
-use UserFrosting\Sprinkle\Core\Util\ShutdownHandler;
 use UserFrosting\Support\Exception\BadRequestException;
+use UserFrosting\Support\Exception\NotFoundException;
 use UserFrosting\Support\Repository\Loader\ArrayFileLoader;
 use UserFrosting\Support\Repository\Repository;
 
@@ -79,16 +80,11 @@ class ServicesProvider
         $container['alerts'] = function ($c) {
             $config = $c->config;
 
-            if ($config['alert.storage'] == 'cache')
-            {
+            if ($config['alert.storage'] == 'cache') {
                 return new CacheAlertStream($config['alert.key'], $c->translator, $c->cache, $c->config);
-            }
-            else if ($config['alert.storage'] == 'session')
-            {
+            } elseif ($config['alert.storage'] == 'session') {
                 return new SessionAlertStream($config['alert.key'], $c->translator, $c->session);
-            }
-            else
-            {
+            } else {
                 throw new \Exception("Bad alert storage handler type '{$config['alert.storage']}' specified in configuration file.");
             }
         };
@@ -100,7 +96,7 @@ class ServicesProvider
          * Assets are Javascript, CSS, image, and other files used by your site.
          */
         $container['assetLoader'] = function ($c) {
-            $basePath = \UserFrosting\APP_DIR . \UserFrosting\DS . \UserFrosting\SPRINKLES_DIR_NAME;
+            $basePath = \UserFrosting\SPRINKLES_DIR;
             $pattern = "/^[A-Za-z0-9_\-]+\/assets\//";
 
             $al = new AssetLoader($basePath, $pattern);
@@ -153,32 +149,28 @@ class ServicesProvider
         /**
          * Cache service.
          *
-         * @todo Create an option somewhere to flush the cache
+         * @return \Illuminate\Cache\Repository
          */
         $container['cache'] = function ($c) {
 
             $config = $c->config;
 
-            if ($config['cache.driver'] == 'file')
-            {
+            if ($config['cache.driver'] == 'file') {
                 $path = $c->locator->findResource('cache://', true, true);
                 $cacheStore = new TaggableFileStore($path);
-            }
-            else if ($config['cache.driver'] == 'memcached')
-            {
-                $cacheStore = new MemcachedStore($config['cache.memcached']);
-            }
-            else if ($config['cache.driver'] == 'redis')
-            {
-                $cacheStore = new RedisStore($config['cache.redis']);
-            }
-            else
-            {
+            } elseif ($config['cache.driver'] == 'memcached') {
+                // We need to inject the prefix in the memcached config
+                $config = array_merge($config['cache.memcached'], ['prefix' => $config['cache.prefix']]);
+                $cacheStore = new MemcachedStore($config);
+            } elseif ($config['cache.driver'] == 'redis') {
+                // We need to inject the prefix in the redis config
+                $config = array_merge($config['cache.redis'], ['prefix' => $config['cache.prefix']]);
+                $cacheStore = new RedisStore($config);
+            } else {
                 throw new \Exception("Bad cache store type '{$config['cache.driver']}' specified in configuration file.");
             }
 
-            $cache = $cacheStore->instance();
-            return $cache->tags($config['cache.prefix']);
+            return $cacheStore->instance();
         };
 
         /**
@@ -198,6 +190,7 @@ class ServicesProvider
          */
         $container['classMapper'] = function ($c) {
             $classMapper = new ClassMapper();
+            $classMapper->setClassMapping('query_builder', 'UserFrosting\Sprinkle\Core\Database\Builder');
             $classMapper->setClassMapping('throttle', 'UserFrosting\Sprinkle\Core\Database\Models\Throttle');
             return $classMapper;
         };
@@ -217,7 +210,7 @@ class ServicesProvider
             }
 
             // Get configuration mode from environment
-            $mode = getenv("UF_MODE") ?: '';
+            $mode = getenv('UF_MODE') ?: '';
 
             // Construct and load config repository
             $builder = new ConfigPathBuilder($c->locator, 'config://');
@@ -239,27 +232,14 @@ class ServicesProvider
                 $config['site.uri.public'] = trim($public, '/');
             }
 
-            // Add asset URLs to the CSRF blacklist
+            // Hacky fix to prevent sessions from being hit too much: ignore CSRF middleware for requests for raw assets ;-)
+            // See https://github.com/laravel/framework/issues/8172#issuecomment-99112012 for more information on why it's bad to hit Laravel sessions multiple times in rapid succession.
             $csrfBlacklist = $config['csrf.blacklist'];
-            $csrfBlacklist['^' . $config['assets.raw.path']] = [
+            $csrfBlacklist['^/' . $config['assets.raw.path']] = [
                 'GET'
             ];
 
             $config->set('csrf.blacklist', $csrfBlacklist);
-
-            if (isset($config['display_errors'])) {
-                ini_set("display_errors", $config['display_errors']);
-            }
-
-            // Configure error-reporting
-            if (isset($config['error_reporting'])) {
-                error_reporting($config['error_reporting']);
-            }
-
-            // Configure time zone
-            if (isset($config['timezone'])) {
-                date_default_timezone_set($config['timezone']);
-            }
 
             return $config;
         };
@@ -365,8 +345,11 @@ class ServicesProvider
 
             $handler = new ExceptionHandlerManager($c, $settings['displayErrorDetails']);
 
-            // Register the HttpExceptionHandler.
+            // Register the base HttpExceptionHandler.
             $handler->registerHandler('\UserFrosting\Support\Exception\HttpException', '\UserFrosting\Sprinkle\Core\Error\Handler\HttpExceptionHandler');
+
+            // Register the NotFoundExceptionHandler.
+            $handler->registerHandler('\UserFrosting\Support\Exception\NotFoundException', '\UserFrosting\Sprinkle\Core\Error\Handler\NotFoundExceptionHandler');
 
             // Register the PhpMailerExceptionHandler.
             $handler->registerHandler('\phpmailerException', '\UserFrosting\Sprinkle\Core\Error\Handler\PhpMailerExceptionHandler');
@@ -402,13 +385,13 @@ class ServicesProvider
         $container['factory'] = function ($c) {
 
             // Get the path of all of the sprinkle's factories
-            $factories_path = $c->locator->findResources('factories://', true, true);
+            $factoriesPath = $c->locator->findResources('factories://', true, true);
 
             // Create a new Factory Muffin instance
             $fm = new FactoryMuffin();
 
             // Load all of the model definitions
-            $fm->loadFactories($factories_path);
+            $fm->loadFactories($factoriesPath);
 
             // Set the locale. Could be the config one, but for testing English should do
             Faker::setLocale('en_EN');
@@ -423,8 +406,8 @@ class ServicesProvider
             $config = $c->config;
 
             // Make sure the locale config is a valid string
-            if (!is_string($config['site.locales.default']) || $config['site.locales.default'] == "") {
-                throw new \UnexpectedValueException("The locale config is not a valid string.");
+            if (!is_string($config['site.locales.default']) || $config['site.locales.default'] == '') {
+                throw new \UnexpectedValueException('The locale config is not a valid string.');
             }
 
             // Load the base locale file(s) as specified in the configuration
@@ -468,29 +451,23 @@ class ServicesProvider
         };
 
         /**
-         * Custom 404 handler.
-         *
-         * @todo Is it possible to integrate this into the common error-handling system?
+         * Error-handler for 404 errors.  Notice that we manually create a UserFrosting NotFoundException,
+         * and a NotFoundExceptionHandler.  This lets us pass through to the UF error handling system.
          */
         $container['notFoundHandler'] = function ($c) {
             return function ($request, $response) use ($c) {
-                if ($request->isXhr()) {
-                    $c->alerts->addMessageTranslated("danger", "ERROR.404.TITLE");
-
-                    return $response->withStatus(404);
-                } else {
-                // Render a custom error page, if it exists
-                try {
-                    $template = $c->view->getEnvironment()->loadTemplate("pages/error/404.html.twig");
-                } catch (\Twig_Error_Loader $e) {
-                    $template = $c->view->getEnvironment()->loadTemplate("pages/error/default.html.twig");
-                }
-
-                return $response->withStatus(404)
-                                ->withHeader('Content-Type', 'text/html')
-                                ->write($template->render([]));
-                }
+                $exception = new NotFoundException;
+                $handler = new NotFoundExceptionHandler($c, $request, $response, $exception, $c->settings['displayErrorDetails']);
+                return $handler->handle();
             };
+        };
+
+        /**
+         * Error-handler for PHP runtime errors.  Notice that we just pass this through to our general-purpose
+         * error-handling service.
+         */
+        $container['phpErrorHandler'] = function ($c) {
+            return $c->errorHandler;
         };
 
         /**
@@ -518,8 +495,8 @@ class ServicesProvider
          */
         $container['router'] = function ($c) {
             $routerCacheFile = false;
-            if (isset($c->settings['routerCacheFile'])) {
-                $routerCacheFile = $c->settings['routerCacheFile'];
+            if (isset($c->config['settings.routerCacheFile'])) {
+                $routerCacheFile = $c->config['settings.routerCacheFile'];
             }
 
             return (new Router)->setCacheFile($routerCacheFile);
@@ -535,7 +512,7 @@ class ServicesProvider
             if ($config['session.handler'] == 'file') {
                 $fs = new FileSystem;
                 $handler = new FileSessionHandler($fs, $c->locator->findResource('session://'), $config['session.minutes']);
-            } else if ($config['session.handler'] == 'database') {
+            } elseif ($config['session.handler'] == 'database') {
                 $connection = $c->db->connection();
                 // Table must exist, otherwise an exception will be thrown
                 $handler = new DatabaseSessionHandler($connection, $config['session.database.table'], $config['session.minutes']);
@@ -548,14 +525,6 @@ class ServicesProvider
             $session->start();
 
             return $session;
-        };
-
-        /**
-         * Custom shutdown handler, for dealing with fatal errors.
-         */
-        $container['shutdownHandler'] = function ($c) {
-            // This takes the entire container, so we don't have to initialize any other services unless absolutely necessary.
-            return new ShutdownHandler($c);
         };
 
         /**
@@ -589,7 +558,7 @@ class ServicesProvider
             // Load the translations
             $paths = $c->localePathBuilder->buildPaths();
             $loader = new ArrayFileLoader($paths);
-        
+
             // Create the $translator object
             $translator = new MessageTranslator($loader->load());
 
@@ -612,8 +581,7 @@ class ServicesProvider
 
             // Add Sprinkles' templates namespaces
             foreach ($sprinkles as $sprinkle) {
-                $path = \UserFrosting\APP_DIR . \UserFrosting\DS .
-                    \UserFrosting\SPRINKLES_DIR_NAME . \UserFrosting\DS .
+                $path = \UserFrosting\SPRINKLES_DIR . \UserFrosting\DS .
                     $sprinkle . \UserFrosting\DS .
                     \UserFrosting\TEMPLATE_DIR_NAME . \UserFrosting\DS;
 
@@ -635,8 +603,8 @@ class ServicesProvider
 
             // Register the Slim extension with Twig
             $slimExtension = new TwigExtension(
-                $c['router'],
-                $c['request']->getUri()
+                $c->router,
+                $c->request->getUri()
             );
             $view->addExtension($slimExtension);
 

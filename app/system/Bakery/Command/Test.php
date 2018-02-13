@@ -14,10 +14,9 @@ use Symfony\Component\Console\Input\InputOption;
 use UserFrosting\System\Bakery\BaseCommand;
 
 /**
- * Assets builder CLI Tools.
- * Wrapper for npm/node commands
+ * Automated testing CLI tool.
+ * Sets up environment and runs PHPUnit tests in each Sprinkle.
  *
- * @extends Bakery
  * @author Alex Weissman (https://alexanderweissman.com)
  */
 class Test extends BaseCommand
@@ -43,7 +42,14 @@ class Test extends BaseCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $this->io->title("UserFrosting's Tester");
+
+        // Get command
         $command = \UserFrosting\VENDOR_DIR . "/bin/phpunit --colors=always";
+        if ($output->isVerbose() || $output->isVeryVerbose()) {
+            $command .= " -v";
+        }
+
+        // Execute
         $this->io->writeln("> <comment>$command</comment>");
         passthru($command);
     }

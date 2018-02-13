@@ -38,7 +38,7 @@
                 'port' => 11211,
                 'weight' => 100
             ],
-            "redis" => [
+            'redis' => [
                 'host' => '127.0.0.1',
                 'password' => null,
                 'port' => 6379,
@@ -139,16 +139,26 @@
                 // with the exception of English, which as the default language comes first.
                 'available' => [
                     'en_US' => 'English',
+                    'zh_CN' => '中文',
+                    'es_ES' => 'Español',
                     'ar'    => 'العربية',
-                    'fr_FR' => 'Français',
                     'pt_PT' => 'Português',
+                    'ru_RU' => 'русский',
                     'de_DE' => 'Deutsch',
-                    'th_TH' => 'ภาษาไทย'
+                    'fr_FR' => 'Français',
+                    'tr'    => 'Türk',
+                    'it_IT' => 'Italiano',
+                    'th_TH' => 'ภาษาไทย',
+                    'fa'    => 'فارسی'
                 ],
                 // This can be a comma-separated list, to load multiple fallback locales
                 'default' => 'en_US'
             ],
             'title'     =>      'UserFrosting',
+            // Global ufTable settings
+            'uf_table' => [
+                'use_loading_transition' => true
+            ],
             // URLs
             'uri' => [
                 'base' => [
@@ -157,11 +167,16 @@
                     'port'              => isset($_SERVER['SERVER_PORT']) ? (int) $_SERVER['SERVER_PORT'] : null,
                     'path'              => isset($_SERVER['SCRIPT_NAME']) ? trim(dirname($_SERVER['SCRIPT_NAME']), '/\\') : ''
                 ],
-                'author'            => 'http://www.userfrosting.com',
+                'author'            => 'https://www.userfrosting.com',
                 'publisher'         => ''
             ]
         ],
-        'timezone' => 'America/New_York',
-        'error_reporting' => E_ALL,  // Development - report all errors and suggestions
-        'display_errors'  => 'off'
+        'php' => [
+            'timezone' => 'America/New_York',
+            'error_reporting' => E_ALL,  // Development - report all errors and suggestions
+            'display_errors'  => 'true',
+            'log_errors'      => 'false',
+            // Let PHP itself render errors natively.  Useful if a fatal error is raised in our custom shutdown handler.
+            'display_errors_native' => 'false'
+        ]
     ];

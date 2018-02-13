@@ -48,33 +48,7 @@ class SiteController extends SimpleController
         return $this->ci->view->render($response, 'pages/vr.html.twig');
     }
 
-    /**
-     * Renders the default operation page for labGC.
-     *
-     * By default, this is the page that non-authenticated users will first see when they navigate to your website's root.
-     * Request type: GET
-     */
-    public function pageOperation($request, $response, $args)
-    {
-        /** @var UserFrosting\Sprinkle\Account\Authenticate\Authenticator $authenticator */
-        $authenticator = $this->ci->authenticator;
-        if (!$authenticator->check()) {
-            $loginPage = $this->ci->router->pathFor('login');
-            return $response->withRedirect($loginPage, 400);
-        }
-        $drone = Drone::where ('id', '=', $args['drone_id'])->first();
-        return $this->ci->view->render($response, 'pages/operation.html.twig', [
-        "page" => [
-            "validators" => [
-                "register" => 1
-            ],
-            "drone" => [
-                "id" => $drone->id,
-                "drone_name" => $drone->drone_name
-            ]
-        ]
-    ]);
-    }
+
 
     /**
      * Returns a sprunje of Drones
@@ -95,9 +69,9 @@ class SiteController extends SimpleController
         $currentUser = $this->ci->currentUser;
 
         // Access-controlled page
-        if (!$authorizer->checkAccess($currentUser, 'uri_users')) {
-            throw new ForbiddenException();
-        }
+        //if (!$authorizer->checkAccess($currentUser, 'uri_users')) {
+        //    throw new ForbiddenException();
+        //}
 
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
@@ -107,6 +81,42 @@ class SiteController extends SimpleController
         // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
         // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
         return $sprunje->toResponse($response);
+    }
+
+     /**
+     * Renders the default operation page for labGC.
+     *
+     * By default, this is the page that non-authenticated users will first see when they navigate to your website's root.
+     * Request type: GET
+     */
+    public function pageOperation($request, $response, $args)
+    {
+        /** @var UserFrosting\Sprinkle\Account\Authenticate\Authenticator $authenticator */
+        $authenticator = $this->ci->authenticator;
+        if (!$authenticator->check()) {
+            $loginPage = $this->ci->router->pathFor('login');
+            return $response->withRedirect($loginPage, 400);
+        }
+        error_log("operations");
+        error_log(print_r($args,true));
+        if($args){
+            $drone = Drone::where ('id', '=', $args['drone_id'])->first();
+        }else{
+            $drone = new \stdClass();
+            $drone->id= 'all';
+            $drone->drone_name = 'all';
+        }
+        return $this->ci->view->render($response, 'pages/operation.html.twig', [
+            "page" => [
+                "validators" => [
+                    "register" => 1
+                ],
+                "drone" => [
+                    "id" => $drone->id,
+                    "drone_name" => $drone->drone_name
+                ]
+            ]
+        ]);
     }
 
     /**
@@ -120,10 +130,15 @@ class SiteController extends SimpleController
     {
         // GET parameters
         $params = $request->getQueryParams();
-
+        error_log("operationbydrone");
         error_log(print_r($params,true));
-        $params['filters']['drone_id'] = $args['drone_id'];
-
+        error_log(print_r($args,true));
+        if($args['drone_id'] == 'all'){
+            //no filter
+        }
+        else {
+            $params['filters']['drone_id'] = $args['drone_id'];
+        }
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager $authorizer */
         $authorizer = $this->ci->authorizer;
 
@@ -131,9 +146,9 @@ class SiteController extends SimpleController
         $currentUser = $this->ci->currentUser;
 
         // Access-controlled page
-        if (!$authorizer->checkAccess($currentUser, 'uri_users')) {
-            throw new ForbiddenException();
-        }
+        //if (!$authorizer->checkAccess($currentUser, 'uri_users')) {
+        //    throw new ForbiddenException();
+        //}
 
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
@@ -143,6 +158,35 @@ class SiteController extends SimpleController
         // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
         // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
         return $sprunje->toResponse($response);
+    }
+
+    /**
+     * Renders the default home page for Cosmos.
+     *
+     * By default, this is the page that non-authenticated users will first see when they navigate to your website's root.
+     * Request type: GET
+     */
+    public function pagePresentation($request, $response, $args)
+    {
+        /** @var UserFrosting\Sprinkle\Account\Authenticate\Authenticator $authenticator */
+        return $this->ci->view->render($response, 'pages/presentation.php');
+    }
+
+    /**
+     * Renders the default VR page for labGC.
+     *
+     * By default, this is the page that non-authenticated users will first see when they navigate to your website's root.
+     * Request type: GET
+     */
+    public function pageWIP($request, $response, $args)
+    {
+        /** @var UserFrosting\Sprinkle\Account\Authenticate\Authenticator $authenticator */
+        $authenticator = $this->ci->authenticator;
+        if (!$authenticator->check()) {
+            $loginPage = $this->ci->router->pathFor('login');
+            return $response->withRedirect($loginPage, 400);
+        }
+        return $this->ci->view->render($response, 'pages/wip.html.twig');
     }
 
 }

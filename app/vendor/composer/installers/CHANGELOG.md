@@ -1,7 +1,47 @@
 # Change Log
 
 ## [Unreleased]
-* Installer for Lavalite.
+
+## v1.5.0 - 2017-12-29
+### Added
+* Added WordPress dropin support.
+* Added new types supported for Eliasis.
+* Added support for Phoenix CMS.
+* Added MODX installer.
+* Added Majima instaler.
+* Added SiteDirect installer.
+* Added support optional prefix in OctoberCMS installers.
+* Added PHP 7.2 support.
+
+### Changed
+* Changed remove packages, see [#348](https://github.com/composer/installers/pull/348).
+
+### Fixed
+* Fixed code style, removed unused imports.
+
+## v1.4.0 - 2017-08-09
+### Added
+* Installer for eZ Platform.
+* Installer for UserFrosting.
+* Installer for Osclass.
+* Installer for Lan Management System.
+
+### Changed
+* Added vendor name to package path for Lavalite.
+
+## v1.3.0 - 2017-04-24
+### Added
+* Kanboard plugins installer.
+* Porto-SAP installer.
+* Add `core` to concrete5 installer.
+* Support Moodle "search" plugin type.
+* SyDES installer.
+* iTop installer.
+* Lavalite installer.
+* Module type for Eliasis.
+* Vgmcp installer.
+* OntoWiki installer.
+* The requirements for contributing (CONTRIBUTING.md).
 
 ## v1.2.0 - 2016-08-13
 ### Added

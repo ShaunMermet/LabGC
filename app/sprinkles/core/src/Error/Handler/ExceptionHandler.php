@@ -15,6 +15,7 @@ use UserFrosting\Sprinkle\Core\Error\Renderer\JsonRenderer;
 use UserFrosting\Sprinkle\Core\Error\Renderer\PlainTextRenderer;
 use UserFrosting\Sprinkle\Core\Error\Renderer\WhoopsRenderer;
 use UserFrosting\Sprinkle\Core\Error\Renderer\XmlRenderer;
+use UserFrosting\Sprinkle\Core\Http\Concerns\DeterminesContentType;
 use UserFrosting\Support\Message\UserMessage;
 
 /**
@@ -24,18 +25,7 @@ use UserFrosting\Support\Message\UserMessage;
  */
 class ExceptionHandler implements ExceptionHandlerInterface
 {
-    /**
-     * Known handled content types
-     *
-     * @var array
-     */
-    protected $knownContentTypes = [
-        'application/json',
-        'application/xml',
-        'text/xml',
-        'text/html',
-        'text/plain'
-    ];
+    use DeterminesContentType;
 
     /**
      * @var ContainerInterface The global container object, which holds all your services.
@@ -53,7 +43,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
     protected $response;
 
     /**
-     * @var Exception
+     * @var Throwable
      */
     protected $exception;
 
@@ -86,14 +76,14 @@ class ExceptionHandler implements ExceptionHandlerInterface
      * @param ContainerInterface     $ci
      * @param ServerRequestInterface $request   The most recent Request object
      * @param ResponseInterface      $response  The most recent Response object
-     * @param Exception              $exception The caught Exception object
+     * @param Throwable              $exception The caught Exception object
      * @param bool                   $displayErrorDetails
      */
     public function __construct(
         ContainerInterface $ci,
         ServerRequestInterface $request,
         ResponseInterface $response,
-        \Exception $exception,
+        $exception,
         $displayErrorDetails = false
     ) {
         $this->ci = $ci;
@@ -102,7 +92,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
         $this->exception = $exception;
         $this->displayErrorDetails = $displayErrorDetails;
         $this->statusCode = $this->determineStatusCode();
-        $this->contentType = $this->determineContentType($request);
+        $this->contentType = $this->determineContentType($request, $this->ci->config['site.debug.ajax']);
         $this->renderer = $this->determineRenderer();
     }
 
@@ -162,7 +152,7 @@ class ExceptionHandler implements ExceptionHandlerInterface
         try {
             $template = $this->ci->view->getEnvironment()->loadTemplate("pages/error/$httpCode.html.twig");
         } catch (\Twig_Error_Loader $e) {
-            $template = $this->ci->view->getEnvironment()->loadTemplate("pages/error/default.html.twig");
+            $template = $this->ci->view->getEnvironment()->loadTemplate("pages/abstract/error.html.twig");
         }
 
         return $this->response
@@ -198,51 +188,6 @@ class ExceptionHandler implements ExceptionHandlerInterface
         foreach ($messages as $message) {
             $this->ci->alerts->addMessageTranslated('danger', $message->message, $message->parameters);
         }
-    }
-
-    /**
-     * Determine which content type we know about is wanted using Accept header
-     *
-     * Note: This method is a bare-bones implementation designed specifically for
-     * Slim's error handling requirements. Consider a fully-feature solution such
-     * as willdurand/negotiation for any other situation.
-     *
-     * @param ServerRequestInterface $request
-     * @return string
-     */
-    protected function determineContentType(ServerRequestInterface $request)
-    {
-        // For AJAX requests, if AJAX debugging is turned on, always return html
-        if ($this->ci->config['site.debug.ajax'] && $this->request->isXhr()) {
-            return 'text/html';
-        }
-
-        $acceptHeader = $request->getHeaderLine('Accept');
-        $selectedContentTypes = array_intersect(explode(',', $acceptHeader), $this->knownContentTypes);
-        $count = count($selectedContentTypes);
-
-        if ($count) {
-            $current = current($selectedContentTypes);
-
-            /**
-             * Ensure other supported content types take precedence over text/plain
-             * when multiple content types are provided via Accept header.
-             */
-            if ($current === 'text/plain' && $count > 1) {
-                return next($selectedContentTypes);
-            }
-
-            return $current;
-        }
-
-        if (preg_match('/\+(json|xml)/', $acceptHeader, $matches)) {
-            $mediaType = 'application/' . $matches[1];
-            if (in_array($mediaType, $this->knownContentTypes)) {
-                return $mediaType;
-            }
-        }
-
-        return 'text/html';
     }
 
     /**

@@ -1,0 +1,23 @@
+{# This extend the same file from core to add links to the "home page" nav menu. #}
+{% extends "@core/navigation/main-nav.html.twig" %}
+
+{% block navbar_logo %}<a href="{{site.uri.public}}" class="navbar-brand">{{site.title}}</a>{% endblock %}
+
+{% block main_nav %}
+
+	<li>
+		<a href="{{site.uri.public}}/drones">{{translate("DRONES")}}</a>
+	</li>
+	<li>
+		<a href="{{site.uri.public}}/operation/drone/all">{{translate("OPERATIONS")}}</a>
+	</li>
+	<li>
+		<a href="{{site.uri.public}}/data/">{{translate("DATA")}}</a>
+	</li>
+	<li>
+		<a href="{{site.uri.public}}/about/">{{translate("ABOUT")}}</a>
+	</li>
+{% endblock %}
+{% block secondary_nav %}
+	{% include "navigation/user-card.html.twig" %}
+{% endblock %}

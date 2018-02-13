@@ -15,7 +15,7 @@
  * @category   Mockery
  * @package    Mockery
  * @subpackage UnitTests
- * @copyright  Copyright (c) 2010-2014 Pádraic Brady (http://blog.astrumfutura.com)
+ * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
  * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
  */
 
@@ -50,7 +50,7 @@ class MockingParameterAndReturnTypesTest extends MockeryTestCase
         $mock = $this->container->mock("test\Mockery\TestWithParameterAndReturnType");
 
         $mock->shouldReceive("returnInteger");
-        $this->assertEquals(0, $mock->returnInteger());
+        $this->assertSame(0, $mock->returnInteger());
     }
 
     public function testMockingFloatReturnType()
@@ -108,44 +108,80 @@ class MockingParameterAndReturnTypesTest extends MockeryTestCase
         $mock->shouldReceive("withScalarParameters");
         $mock->withScalarParameters(1, 1.0, true, 'string');
     }
+
+    public function testIgnoringMissingReturnsType()
+    {
+        $mock = $this->container->mock("test\Mockery\TestWithParameterAndReturnType");
+
+        $mock->shouldIgnoreMissing();
+
+        $this->assertSame('', $mock->returnString());
+        $this->assertSame(0, $mock->returnInteger());
+        $this->assertSame(0.0, $mock->returnFloat());
+        $this->assertSame(false, $mock->returnBoolean());
+        $this->assertSame([], $mock->returnArray());
+        $this->assertTrue(is_callable($mock->returnCallable()));
+        $this->assertInstanceOf("\Generator", $mock->returnGenerator());
+        $this->assertInstanceOf("test\Mockery\TestWithParameterAndReturnType", $mock->withClassReturnType());
+    }
+
+    public function testAutoStubbingSelf()
+    {
+        $spy = \Mockery::spy("test\Mockery\TestWithParameterAndReturnType");
+
+        $this->assertInstanceOf("test\Mockery\TestWithParameterAndReturnType", $spy->returnSelf());
+    }
+
+    public function testItShouldMockClassWithHintedParamsInMagicMethod()
+    {
+        $this->assertNotNull(
+            \Mockery::mock('test\Mockery\MagicParams')
+        );
+    }
+
+    public function testItShouldMockClassWithHintedReturnInMagicMethod()
+    {
+        $this->assertNotNull(
+            \Mockery::mock('test\Mockery\MagicReturns')
+        );
+    }
 }
 
+class MagicParams
+{
+    public function __isset(string $property)
+    {
+        return false;
+    }
+}
+
+class MagicReturns
+{
+    public function __isset($property) : bool
+    {
+        return false;
+    }
+}
 
 abstract class TestWithParameterAndReturnType
 {
-    public function returnString(): string
-    {
-    }
+    public function returnString(): string {}
 
-    public function returnInteger(): int
-    {
-    }
+    public function returnInteger(): int {}
 
-    public function returnFloat(): float
-    {
-    }
+    public function returnFloat(): float {}
 
-    public function returnBoolean(): bool
-    {
-    }
+    public function returnBoolean(): bool {}
 
-    public function returnArray(): array
-    {
-    }
+    public function returnArray(): array {}
 
-    public function returnCallable(): callable
-    {
-    }
+    public function returnCallable(): callable {}
 
-    public function returnGenerator(): \Generator
-    {
-    }
+    public function returnGenerator(): \Generator {}
 
-    public function withClassReturnType(): TestWithParameterAndReturnType
-    {
-    }
+    public function withClassReturnType(): TestWithParameterAndReturnType {}
 
-    public function withScalarParameters(int $integer, float $float, bool $boolean, string $string)
-    {
-    }
+    public function withScalarParameters(int $integer, float $float, bool $boolean, string $string) {}
+
+    public function returnSelf(): self {}
 }

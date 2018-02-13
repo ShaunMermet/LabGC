@@ -20,7 +20,7 @@ class TaggableFileStoreTest extends TestCase
     public $storage;
 
     public function setup() {
-        $this->storage = "./tests/cache";
+        $this->storage = "./tests/cache/TaggableFileStore";
     }
 
     /**
@@ -67,7 +67,7 @@ class TaggableFileStoreTest extends TestCase
         $cache->tags('global')->flush();
 
         // First show be empty, but not the second one
-        $this->assertEquals(null, $cache->tags('global')->get('foo'));
+        $this->assertNull($cache->tags('global')->get('foo'));
         $this->assertEquals("BARRRRRRRRE", $cache->tags('user')->get('foo'));
     }
 
@@ -87,15 +87,33 @@ class TaggableFileStoreTest extends TestCase
         $cache->tags('red')->flush();
 
         // First show be empty, but not the second one
-        //$this->assertEquals(null, $cache->tags(['foo', 'red'])->get('bar'));
+        $this->assertNull($cache->tags(['foo', 'red'])->get('bar'));
         $this->assertEquals('blue', $cache->tags(['foo', 'blue'])->get('bar'));
     }
 
     public function testFlushingTaggableFileStore()
     {
-        // Create two $cache object
         $cacheStore = new TaggableFileStore($this->storage);
         $cache = $cacheStore->instance();
         $cache->flush();
+    }
+
+    public function testTagsFlush()
+    {
+        // Get store
+        $cacheStore = new TaggableFileStore($this->storage);
+        $cache = $cacheStore->instance();
+
+        // Start by not using tags
+        $cache->put('test', "123", 60);
+        $this->assertEquals("123", $cache->get('test'));
+        $this->assertTrue($cache->flush());
+        $this->assertNull($cache->get('test'));
+
+        // Try again with tags
+        $cache->tags('blah')->put('blah', "321", 60);
+        $this->assertEquals("321", $cache->tags('blah')->get('blah'));
+        $this->assertNull($cache->tags('blah')->flush());
+        $this->assertNull($cache->tags('blah')->get('blah'));
     }
 }

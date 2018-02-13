@@ -10,6 +10,7 @@ namespace UserFrosting\Sprinkle\Core;
 use RocketTheme\Toolbox\Event\Event;
 use UserFrosting\Sprinkle\Core\Database\Models\Model;
 use UserFrosting\Sprinkle\Core\Util\EnvironmentInfo;
+use UserFrosting\Sprinkle\Core\Util\ShutdownHandler;
 use UserFrosting\System\Sprinkle\Sprinkle;
 
 /**
@@ -25,39 +26,10 @@ class Core extends Sprinkle
     public static function getSubscribedEvents()
     {
         return [
-            'onAddGlobalMiddleware' => ['onAddGlobalMiddleware', 0],
             'onSprinklesInitialized' => ['onSprinklesInitialized', 0],
-            'onSprinklesRegisterServices' => ['onSprinklesRegisterServices', 0]
+            'onSprinklesRegisterServices' => ['onSprinklesRegisterServices', 0],
+            'onAddGlobalMiddleware' => ['onAddGlobalMiddleware', 0]
         ];
-    }
-
-    /**
-     * Add CSRF middleware.
-     */
-    public function onAddGlobalMiddleware(Event $event)
-    {
-        // Hacky fix to prevent sessions from being hit too much: ignore CSRF middleware for requests for raw assets ;-)
-        // See https://github.com/laravel/framework/issues/8172#issuecomment-99112012 for more information on why it's bad to hit Laravel sessions multiple times in rapid succession.
-        $request = $this->ci->request;
-        $path = $request->getUri()->getPath();
-        $method = $request->getMethod();
-
-        $csrfBlacklist = $this->ci->config['csrf.blacklist'];
-
-        $isBlacklisted = false;
-
-        foreach ($csrfBlacklist as $pattern => $methods) {
-            $methods = array_map('strtoupper', (array) $methods);
-            if (in_array($method, $methods) && $pattern != '' && preg_match('~' . $pattern . '~', $path)) {
-                $isBlacklisted = true;
-                break;
-            }
-        }
-
-        if (!$path || !$isBlacklisted) {
-            $app = $event->getApp();
-            $app->add($this->ci->csrf);
-        }
     }
 
     /**
@@ -77,6 +49,73 @@ class Core extends Sprinkle
      */
     public function onSprinklesRegisterServices()
     {
-        $this->ci->shutdownHandler;
+        // Set up any global PHP settings from the config service.
+        $config = $this->ci->config;
+
+        // Display PHP fatal errors natively.
+        if (isset($config['php.display_errors_native'])) {
+            ini_set('display_errors', $config['php.display_errors_native']);
+        }
+
+        // Log PHP fatal errors
+        if (isset($config['php.log_errors'])) {
+            ini_set('log_errors', $config['php.log_errors']);
+        }
+
+        // Configure error-reporting level
+        if (isset($config['php.error_reporting'])) {
+            error_reporting($config['php.error_reporting']);
+        }
+
+        // Configure time zone
+        if (isset($config['php.timezone'])) {
+            date_default_timezone_set($config['php.timezone']);
+        }
+
+        // Determine if error display is enabled in the shutdown handler.
+        $displayErrors = false;
+        if (in_array(strtolower($config['php.display_errors']), [
+            '1',
+            'on',
+            'true',
+            'yes'
+        ])) {
+            $displayErrors = true;
+        }
+
+        $sh = new ShutdownHandler($this->ci, $displayErrors);
+        $sh->register();
+    }
+
+    /**
+     * Add CSRF middleware.
+     */
+    public function onAddGlobalMiddleware(Event $event)
+    {
+        $request = $this->ci->request;
+        $path = $request->getUri()->getPath();
+        $method = $request->getMethod();
+
+        // Normalize path to always have a leading slash
+        $path = '/' . ltrim($path, '/');
+        // Normalize method to uppercase
+        $method = strtoupper($method);
+
+        $csrfBlacklist = $this->ci->config['csrf.blacklist'];
+        $isBlacklisted = false;
+
+        // Go through the blacklist and determine if the path and method match any of the blacklist entries.
+        foreach ($csrfBlacklist as $pattern => $methods) {
+            $methods = array_map('strtoupper', (array) $methods);
+            if (in_array($method, $methods) && $pattern != '' && preg_match('~' . $pattern . '~', $path)) {
+                $isBlacklisted = true;
+                break;
+            }
+        }
+
+        if (!$path || !$isBlacklisted) {
+            $app = $event->getApp();
+            $app->add($this->ci->csrf);
+        }
     }
 }

@@ -20,7 +20,7 @@ of mock possible.
 
     $mock = \Mockery::mock(array('foo'=>1,'bar'=>2));
 
-Creates an mock object named unknown since we passed no name. However we did
+Creates a mock object named unknown since we passed no name. However we did
 pass an expectation array, a quick method of setting up methods to expect with
 their return values.
 
@@ -35,7 +35,7 @@ arrays can be passed for all mock objects as the second parameter to
 .. code-block:: php
 
     $mock = \Mockery::mock('foo', function($mock) {
-        $mock->shouldReceive(method_name);
+        $mock->shouldReceive('method_name');
     });
 
 In addition to expectation arrays, you can also pass in a closure which
@@ -83,6 +83,10 @@ new instances of that class will import any expectations set on the origin
 mock (``$mock``). The origin mock is never verified since it's used an
 expectation store for new instances. For this purpose we use the term
 "instance mock" to differentiate it from the simpler "alias mock".
+
+In other words, an instance mock will "intercept" when a new instance of the 
+mocked class is created, then the mock will be used instead. This is useful specially 
+when mocking hard dependencies which will be discussed later.
 
 .. note::
 
@@ -173,7 +177,7 @@ programmed to act as discrete iterated elements.
     $mock = \Mockery::namedMock('MyClassName', 'DateTime');
 
 The ``namedMock`` method will generate a class called by the first argument,
-so in this example ``MyClassName``. The rest of the arguments are treat in the
+so in this example ``MyClassName``. The rest of the arguments are treated in the
 same way as the ``mock`` method, so again, this example would create a class
 called ``MyClassName`` that extends ``DateTime``.
 

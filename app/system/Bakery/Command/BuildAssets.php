@@ -17,7 +17,6 @@ use UserFrosting\System\Bakery\BaseCommand;
  * Assets builder CLI Tools.
  * Wrapper for npm/node commands
  *
- * @extends Bakery
  * @author Alex Weissman (https://alexanderweissman.com)
  */
 class BuildAssets extends BaseCommand
@@ -48,7 +47,7 @@ class BuildAssets extends BaseCommand
         $this->io->title("UserFrosting's Assets Builder");
 
         // Set $path
-        $this->buildPath = $this->projectRoot . "/build";
+        $this->buildPath = $this->projectRoot . \UserFrosting\DS . \UserFrosting\BUILD_DIR_NAME;
 
         // Delete cached data is requested
         if ($input->getOption('force')) {
@@ -81,7 +80,12 @@ class BuildAssets extends BaseCommand
     {
         $this->io->section("<info>Installing npm dependencies</info>");
         $this->io->writeln("> <comment>npm install</comment>");
-        passthru("npm install --prefix " . $this->buildPath);
+
+        // Temporarily change the working directory so we can install npm dependencies
+        $wd = getcwd();
+        chdir($this->buildPath);
+        passthru("npm install");
+        chdir($wd);
     }
 
     /**
@@ -128,7 +132,7 @@ class BuildAssets extends BaseCommand
         $this->io->section("Testing assets installation");
 
         // Get path and vendor files
-        $vendorPath = \UserFrosting\APP_DIR . \UserFrosting\DS . \UserFrosting\SPRINKLES_DIR_NAME . "/core/assets/vendor/*";
+        $vendorPath = \UserFrosting\SPRINKLES_DIR . "/core/assets/vendor/*";
         $coreVendorFiles = glob($vendorPath);
 
         if (!$coreVendorFiles){

@@ -17,7 +17,6 @@ use UserFrosting\System\Bakery\BaseCommand;
  * Bake command.
  * Shortcut to run multiple commands at once
  *
- * @extends Bakery
  * @author Alex Weissman (https://alexanderweissman.com)
  */
 class Bake extends BaseCommand
@@ -64,6 +63,9 @@ class Bake extends BaseCommand
         $command->run($input, $output);
 
         $command = $this->getApplication()->find('migrate');
+        $command->run($input, $output);
+
+        $command = $this->getApplication()->find('create-admin');
         $command->run($input, $output);
 
         $command = $this->getApplication()->find('build-assets');

@@ -14,7 +14,7 @@
  *
  * @category   Mockery
  * @package    Mockery
- * @copyright  Copyright (c) 2010-2014 Pádraic Brady (http://blog.astrumfutura.com)
+ * @copyright  Copyright (c) 2010 Pádraic Brady (http://blog.astrumfutura.com)
  * @license    http://github.com/padraic/mockery/blob/master/LICENSE New BSD License
  */
 
@@ -22,7 +22,6 @@ namespace Mockery;
 
 class CompositeExpectation implements ExpectationInterface
 {
-
     /**
      * Stores an array of all expectations for this composite
      *
@@ -47,6 +46,17 @@ class CompositeExpectation implements ExpectationInterface
     public function andReturn()
     {
         return $this->__call(__FUNCTION__, func_get_args());
+    }
+
+    /**
+     * Set a return value, or sequential queue of return values
+     *
+     * @param mixed ...
+     * @return self
+     */
+    public function andReturns()
+    {
+        return call_user_func_array([$this, 'andReturn'], func_get_args());
     }
 
     /**

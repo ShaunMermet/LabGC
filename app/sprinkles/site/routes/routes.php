@@ -9,9 +9,9 @@
 //global $app;
 //$config = $app->getContainer()->get('config');
 
-$app->get('/', 'UserFrosting\Sprinkle\Site\Controller\Overrides\CoreController:pageIndex')
-    ->add('checkEnvironment')
-    ->setName('index');
+//$app->get('/', 'UserFrosting\Sprinkle\Site\Controller\Overrides\CoreController:pageIndex')
+//    ->add('checkEnvironment')
+//    ->setName('index');
 
 //$app->get('/about','UserFrosting\Sprinkle\Core\Controller\CoreController:pageAbout')->add('checkEnvironment');
 
@@ -22,9 +22,12 @@ $app->get('/', 'UserFrosting\Sprinkle\Site\Controller\Overrides\CoreController:p
 //$app->get('/privacy', 'UserFrosting\Sprinkle\Core\Controller\CoreController:pagePrivacy');
 
 //$app->get('/' . $config['assets.raw.path'] . '/{url:.+}', 'UserFrosting\Sprinkle\Core\Controller\CoreController:getAsset');
-
 $app->group('/hud', function () {
 	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageHud');
+
+})->add('authGuard');
+$app->group('/operation/drone/all', function () {
+	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageOperation');
 
 })->add('authGuard');
 $app->group('/operation/{operation_id}', function () {
@@ -34,11 +37,13 @@ $app->group('/operation/{operation_id}', function () {
 $app->group('/VR', function () {
 	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageVR');
 
-});//->add('authGuard');
-$app->group('/drone/{drone_id}', function () {
+})->add('authGuard');
+
+$app->group('/operation/drone/{drone_id}', function () {
 	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageOperation');
 
-});//->add('authGuard');
+})->add('authGuard');
+
 $app->group('/api/drones', function () {
     
     $this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:getDroneSprunje');
@@ -47,5 +52,25 @@ $app->group('/api/drones', function () {
 $app->group('/api/droneOperations/{drone_id}', function () {
     
     $this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:getOperationsByDrone');
+
+})->add('authGuard');
+$app->group('/', function () {
+	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\Overrides\CoreController:pageIndex');
+
+})->add('authGuard');
+$app->group('/about', function () {
+	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pagePresentation');
+
+});//->add('authGuard');
+$app->group('/home', function () {
+	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\Overrides\CoreController:pageIndex');
+
+})->add('authGuard');
+$app->group('/drones', function () {
+	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\Overrides\CoreController:pageIndex');
+
+})->add('authGuard');
+$app->group('/data', function () {
+	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageWIP');
 
 })->add('authGuard');

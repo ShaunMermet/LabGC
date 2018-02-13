@@ -1,5 +1,21 @@
 # Change Log
 
+## 1.0.0 (XXXX-XX-XX)
+
+* Destructors (`__destruct`) are stubbed out where it makes sense
+* Allow passing a closure argument to `withArgs()` to validate multiple arguments at once. 
+* `Mockery\Adapter\Phpunit\TestListener` has been rewritten because it
+  incorrectly marked some tests as risky. It will no longer verify mock
+  expectations but instead check that tests do that themselves.
+* Removes SPL Class Loader
+* Removed object recorder feature
+* Bumped minimum PHP version to 5.6
+* `andThrow` will now throw anything `\Throwable`
+* Adds `allows` and `expects` syntax
+* Adds optional global helpers for `mock`, `namedMock` and `spy`
+* Adds ability to create objects using traits
+* `Mockery\Matcher\MustBe` was deprecated
+ 
 ## 0.9.4 (XXXX-XX-XX)
 
 * `shouldIgnoreMissing` will respect global `allowMockingNonExistentMethods`

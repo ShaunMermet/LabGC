@@ -168,7 +168,7 @@ class SprinkleManager
     }
 
     /**
-     * Initialize all base sprinkles in a specified sprinkles.json schema file.
+     * Initialize all base sprinkles in a specified Sprinkles schema file (e.g. 'sprinkles.json').
      *
      * @param string $schemaPath
      */
@@ -217,14 +217,14 @@ class SprinkleManager
     }
 
     /**
-     * Load list of Sprinkles from a JSON schema file (e.g. sprinkles.json).
+     * Load list of Sprinkles from a JSON schema file (e.g. 'sprinkles.json').
      *
      * @param string $schemaPath
      * @return string[]
      */
     protected function loadSchema($schemaPath)
     {
-        $sprinklesFile = file_get_contents($schemaPath);
+        $sprinklesFile = @file_get_contents($schemaPath);
 
         if ($sprinklesFile === false) {
             $errorMessage = "Error: Unable to determine Sprinkle load order.  File '$schemaPath' not found or unable to read. Please create a 'sprinkles.json' file and try again.";

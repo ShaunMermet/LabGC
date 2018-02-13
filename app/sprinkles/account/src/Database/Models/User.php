@@ -10,7 +10,7 @@ namespace UserFrosting\Sprinkle\Account\Database\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use UserFrosting\Sprinkle\Account\Util\Password;
+use UserFrosting\Sprinkle\Account\Facades\Password;
 use UserFrosting\Sprinkle\Core\Database\Models\Model;
 use UserFrosting\Sprinkle\Core\Facades\Debug;
 
@@ -41,31 +41,54 @@ class User extends Model
     use SoftDeletes;
 
     /**
-     * @var string The name of the table for the current model.
+     * The name of the table for the current model.
+     *
+     * @var string
      */
-    protected $table = "users";
+    protected $table = 'users';
 
+    /**
+     * Fields that should be mass-assignable when creating a new User.
+     *
+     * @var string[]
+     */
     protected $fillable = [
-        "user_name",
-        "first_name",
-        "last_name",
-        "email",
-        "locale",
-        "theme",
-        "group_id",
-        "flag_verified",
-        "flag_enabled",
-        "last_activity_id",
-        "password",
-        "deleted_at"
+        'user_name',
+        'first_name',
+        'last_name',
+        'email',
+        'locale',
+        'theme',
+        'group_id',
+        'flag_verified',
+        'flag_enabled',
+        'last_activity_id',
+        'password',
+        'deleted_at'
+    ];
+
+    /**
+     * A list of attributes to hide by default when using toArray() and toJson().
+     *
+     * @link https://laravel.com/docs/5.4/eloquent-serialization#hiding-attributes-from-json
+     * @var string[]
+     */
+    protected $hidden = [
+        'password'
     ];
 
     /**
      * The attributes that should be mutated to dates.
      *
-     * @var array
+     * @var string[]
      */
-    protected $dates = ['deleted_at'];
+    protected $dates = [
+        'deleted_at'
+    ];
+
+    protected $appends = [
+        'full_name'
+    ];
 
     /**
      * Cached dictionary of permissions for the user.
@@ -75,7 +98,9 @@ class User extends Model
     protected $cachedPermissions;
 
     /**
-     * @var bool Enable timestamps for Users.
+     * Enable timestamps for Users.
+     *
+     * @var bool
      */
     public $timestamps = true;
 
@@ -112,10 +137,10 @@ class User extends Model
     {
         if ($name == 'last_sign_in_time') {
             return $this->lastActivityTime('sign_in');
-        } else if ($name == 'avatar') {
+        } elseif ($name == 'avatar') {
             // Use Gravatar as the user avatar
             $hash = md5(strtolower(trim( $this->email)));
-            return "https://www.gravatar.com/avatar/" . $hash . "?d=mm";
+            return 'https://www.gravatar.com/avatar/' . $hash . '?d=mm';
         } else {
             return parent::__get($name);
         }
@@ -171,6 +196,7 @@ class User extends Model
     /**
      * Determines whether a user exists, including checking soft-deleted records
      *
+     * @deprecated since 4.1.7 This method conflicts with and overrides the Builder::exists() method.  Use Model::findUnique instead.
      * @param mixed $value
      * @param string $identifier
      * @param bool $checkDeleted set to true to include soft-deleted records
@@ -178,26 +204,17 @@ class User extends Model
      */
     public static function exists($value, $identifier = 'user_name', $checkDeleted = true)
     {
-        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
-        $classMapper = static::$ci->classMapper;
-
-        $query = $classMapper->staticMethod('user', 'where', $identifier, $value);
-
-        if ($checkDeleted) {
-            $query = $query->withTrashed();
-        }
-
-        return $query->first();
+        return static::findUnique($value, $identifier, $checkDeleted);
     }
 
     /**
      * Return a cache instance specific to that user
      *
-     * @return Illuminate\Contracts\Cache\Store
+     * @return \Illuminate\Contracts\Cache\Store
      */
     public function getCache()
     {
-        return static::$ci->cache->tags([static::$ci->config['cache.prefix'], "_u".$this->id]);
+        return static::$ci->cache->tags('_u'.$this->id);
     }
 
     /**
@@ -245,7 +262,7 @@ class User extends Model
     public function getSecondsSinceLastActivity($type)
     {
         $time = $this->lastActivityTime($type);
-        $time = $time ? $time : "0000-00-00 00:00:00";
+        $time = $time ? $time : '0000-00-00 00:00:00';
         $time = new Carbon($time);
 
         return $time->diffInSeconds();
@@ -341,17 +358,17 @@ class User extends Model
         // Update password if we had encountered an outdated hash
         $passwordType = Password::getHashType($this->password);
 
-        if ($passwordType != "modern") {
+        if ($passwordType != 'modern') {
             if (!isset($params['password'])) {
-                Debug::debug("Notice: Unhashed password must be supplied to update to modern password hashing.");
+                Debug::debug('Notice: Unhashed password must be supplied to update to modern password hashing.');
             } else {
                 // Hash the user's password and update
                 $passwordHash = Password::hash($params['password']);
                 if ($passwordHash === null) {
-                    Debug::debug("Notice: outdated password hash could not be updated because the new hashing algorithm is not supported.  Are you running PHP >= 5.3.7?");
+                    Debug::debug('Notice: outdated password hash could not be updated because the new hashing algorithm is not supported.  Are you running PHP >= 5.3.7?');
                 } else {
                     $this->password = $passwordHash;
-                    Debug::debug("Notice: outdated password hash has been automatically updated to modern hashing.");
+                    Debug::debug('Notice: outdated password hash has been automatically updated to modern hashing.');
                 }
             }
         }
@@ -424,25 +441,6 @@ class User extends Model
         $classMapper = static::$ci->classMapper;
 
         return $this->belongsToMany($classMapper->getClassMapping('role'), 'role_users', 'user_id', 'role_id')->withTimestamps();
-    }
-
-    /**
-     * Get this user's roles, but only those that have a particular permission (specified elsewhere in the query).
-     *
-     * @return \UserFrosting\Sprinkle\Core\Database\Relations\BelongsToManyConstrained
-     */
-    public function rolesWithPermission()
-    {
-        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
-        $classMapper = static::$ci->classMapper;
-
-        // Constrain this relationship, only loading a user's roles that have a particular permission
-        $query = $this->belongsToManyConstrained($classMapper->getClassMapping('role'), 'permission_id', 'role_users');
-
-        // Need to make sure we add the `permission_id` pivot for BelongsToManyConstrained to match
-        $query = $query->withPivot('permission_id');
-
-        return $query;
     }
 
     /**

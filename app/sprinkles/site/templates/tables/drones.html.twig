@@ -12,7 +12,7 @@
         <thead>
             <tr>
                 <th class="sorter-metatext" data-column-name="drone_name" data-column-template="#user-table-column-info" data-priority="1">{{translate('DRONES')}} <i class="fa fa-sort"></i></th>
-                <th class="filter-select filter-metatext" data-column-name="drone_name" data-column-template="#user-table-column-locate" data-priority="1" data-sorter="false" data-filter="false">{{translate("LOCATE")}}<i class="fa fa-sort"></i></th>
+                <!--<th class="filter-select filter-metatext" data-column-name="drone_name" data-column-template="#user-table-column-locate" data-priority="1" data-sorter="false" data-filter="false">{{translate("LOCATE")}}<i class="fa fa-sort"></i></th>-->
                 {% if 'last_activity' in table.columns %}
                     <th class="sorter-metanum" data-column-name="last_activity" data-column-template="#user-table-column-last-activity" data-priority="2">{{translate("ACTIVITY.LAST")}} <i class="fa fa-sort"></i></th>
                 {% endif %}
@@ -36,13 +36,13 @@
         <td data-text="{{row.drone_name}}" >
             <div id="{{row.drone_slug}}" onmouseover="{{row.drone_slug}}hover()" onmouseout="{{row.drone_slug}}out()">
                 <strong>
-                    <a href="{{site.uri.public}}/drone/{{row.id}}">{{row.drone_name}}</a>
+                    <a href="#" data-drone_slug="{{row.drone_slug}}" class="js-drone-locate">{{row.drone_name}}</a>
                 </strong>
             </div>
         </td>
     </script>
 
-    <script id="user-table-column-locate" type="text/x-handlebars-template">
+    <!--<script id="user-table-column-locate" type="text/x-handlebars-template">
         <td data-text="{{row.drone_slug}}" >
             <div class="btn-group">
                 <button type="button" class="btn btn-default js-drone-locate" data-drone_slug="{{row.drone_slug}}">
@@ -50,7 +50,7 @@
                 </button>
             </div>
         </td>
-    </script>
+    </script>-->
 
     <script id="user-table-column-last-activity" type="text/x-handlebars-template">
         {{#if row.occurred_at }}
@@ -97,6 +97,11 @@
                 {{/ifx }}
                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
                     <li>
+                        <a href="#" data-drone_id="{{row.id}}" class="js-drone-details">
+                            <i class="fa fa-info-circle"></i> {% endverbatim %}{{translate("DRONE.DETAILS")}}{% verbatim %}
+                        </a>
+                    </li>
+                    <li>
                         <a href="#" data-user_name="{{row.user_name}}" class="js-user-edit">
                         <i class="fa fa-edit"></i> {% endverbatim %}{{translate("DRONE.EDIT")}}{% verbatim %}
                         </a>
@@ -106,6 +111,7 @@
                         <i class="fa fa-trash-o"></i> {% endverbatim %}{{translate("DRONE.DELETE")}}{% verbatim %}
                         </a>
                     </li>
+                    
                 </ul>
             </div>
         </td>

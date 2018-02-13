@@ -25,9 +25,10 @@
     //});
 
     el.find('.js-drone-locate').click(function() {
-        console.log('locate clicked');
-        console.log($(this).data('drone_slug'));
         gmapCenterOnMarker($(this).data('drone_slug'));
+    });
+    el.find('.js-drone-details').click(function() {
+        gmapDroneDetails($(this).data('drone_id'));
     });
 }
 

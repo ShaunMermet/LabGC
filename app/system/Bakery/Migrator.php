@@ -20,10 +20,8 @@ use UserFrosting\System\Database\Model\Migrations;
 use UserFrosting\System\Bakery\DatabaseTest;
 
 /**
- * Migration CLI Tools.
- * Perform database migrations commands
+ * Migrator class
  *
- * @extends Debug
  * @author Alex Weissman (https://alexanderweissman.com)
  */
 class Migrator
@@ -100,7 +98,7 @@ class Migrator
 
         // Start by testing the DB connexion, just in case
         try {
-            $this->io->writeln("<info>Testing database connexion</info>", OutputInterface::VERBOSITY_VERBOSE);
+            $this->io->writeln("<info>Testing database connection</info>", OutputInterface::VERBOSITY_VERBOSE);
             $this->testDB();
             $this->io->writeln("Ok", OutputInterface::VERBOSITY_VERBOSE);
         } catch (\Exception $e) {
@@ -214,7 +212,7 @@ class Migrator
         }
 
         // Get installed migrations
-        $migrations = Migrations::orderBy("created_at", "desc")->where('batch', '>=', $stepsBack);
+        $migrations = Migrations::orderBy("id", "desc")->where('batch', '>=', $stepsBack);
 
         // Add the sprinkle requirement too
         if ($sprinkle != "") {
@@ -244,17 +242,15 @@ class Migrator
             $this->io->note("Rolling back in pretend mode");
         }
 
-        // Only thing we have to check here before going further is if those migration class are available
-        // We do it before running anything down to be sure not to break anything
-        foreach ($migrations as $migration) {
-            if (!class_exists($migration->migration)) {
-                $this->io->error("Migration class {$migration->migration} doesn't exist.");
-                exit(1);
-            }
-        }
-
         // Loop again to run down each migration
         foreach ($migrations as $migration) {
+
+            // Check if those migration class are available
+            if (!class_exists($migration->migration)) {
+                $this->io->warning("Migration class {$migration->migration} doesn't exist.");
+                continue;
+            }
+
             $this->io->write("> <info>Rolling back {$migration->migration}...</info>");
             $migrationClass = $migration->migration;
             $instance = new $migrationClass($this->schema, $this->io);
@@ -576,9 +572,7 @@ class Migrator
      */
     protected function migrationDirectoryPath($sprinkleName)
     {
-        $path = \UserFrosting\APP_DIR .
-                \UserFrosting\DS .
-                \UserFrosting\SPRINKLES_DIR_NAME .
+        $path = \UserFrosting\SPRINKLES_DIR .
                 \UserFrosting\DS .
                 $sprinkleName .
                 \UserFrosting\DS .

@@ -4,6 +4,10 @@
 Expectation Declarations
 ========================
 
+.. note::
+
+    In order for your expectations to work you MUST call ``Mockery::close()``, preferably in a callback method such as ``tearDown`` or ``_before`` (depending on whether or not you're integrating Mockery with another framework). This static call cleans up the Mockery container used by the current test, and run any verification tasks needed for your expectations.
+    
 Once you have created a mock object, you'll often want to start defining how
 exactly it should behave (and how it should be called). This is where the
 Mockery expectation declarations take over.
@@ -50,7 +54,8 @@ method is a convenience method for calling ``shouldReceive()->never()``.
 
 .. code-block:: php
 
-    with(arg1, arg2, ...) / withArgs(array(arg1, arg2, ...))
+    with(arg1, arg2, ...) 
+    withArgs(array(arg1, arg2, ...))
 
 Adds a constraint that this expectation only applies to method calls which
 match the expected argument list. You can add a lot more flexibility to
@@ -64,6 +69,16 @@ It's important to note that this means all expectations attached only apply to
 the given method when it is called with these exact arguments. This allows for
 setting up differing expectations based on the arguments provided to expected
 calls.
+
+.. code-block:: php
+
+    withArgs(closure)
+
+Instead of providing a built-in matcher for each argument, you can provide a
+closure that matches all passed arguments at once. The given closure receives
+all the arguments passed in the call to the expected method. In this way, this
+expectation only applies to method calls where passed arguments make the closure
+evaluates to true.
 
 .. code-block:: php
 
@@ -117,6 +132,12 @@ Sets a closure (anonymous function) to be called with the arguments passed to
 the method. The return value from the closure is then returned. Useful for
 some dynamic processing of arguments into related concrete results. Closures
 can queued by passing them as extra parameters as for ``andReturn()``.
+
+.. code-block:: php
+
+    andReturnSelf()
+    
+Set the return value to the mocked class name. Useful for mocking fluid interfaces.
 
 .. note::
 

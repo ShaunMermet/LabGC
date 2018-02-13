@@ -7,6 +7,7 @@
  */
 namespace UserFrosting\Tests\Unit;
 
+use Illuminate\Database\Capsule\Manager as DB;
 use Mockery as m;
 use UserFrosting\Tests\TestCase;
 use UserFrosting\Tests\DatabaseTransactions;
@@ -28,112 +29,68 @@ class SprunjeTest extends TestCase
         m::close();
     }
 
-    function testGetQueryMethod()
+    function testSprunjeApplyFiltersDefault()
     {
-        $sprunje = new SprunjeStub([]);
-        $query = $sprunje->getQuery();
-
-        $this->assertEquals('select * from "table"', $query->toSql());
-    }
-
-    function testFilterMethod()
-    {
-        $sprunje = new SprunjeWithFiltersStub([
+        $sprunje = new SprunjeStub([
             'filters' => [
                 'species' => 'Tyto'
             ]
         ]);
 
-        $sprunje->applyFilters();
-        $query = $sprunje->getQuery();
+        $builder = $sprunje->getQuery();
 
-        $this->assertEquals('select * from "table" where ("species" LIKE ?)', $query->toSql());
+        // Need to mock the new Builder instance that Laravel spawns in the where() closure.
+        // See https://stackoverflow.com/questions/20701679/mocking-callbacks-in-laravel-4-mockery
+        $builder->shouldReceive('newQuery')->andReturn(
+                $subBuilder = m::mock(Builder::class, function ($subQuery) {
+                    $subQuery->makePartial();
+                    $subQuery->shouldReceive('orLike')->with('species', 'Tyto')->once()->andReturn($subQuery);
+                })
+            );
+
+        $sprunje->applyFilters($builder);
     }
 
-    function testSortMethod()
+    function testSprunjeApplySortsDefault()
     {
-        $sprunje = new SprunjeWithSortsStub([
+        $sprunje = new SprunjeStub([
             'sorts' => [
                 'species' => 'asc'
             ]
         ]);
 
-        $sprunje->applySorts();
-        $query = $sprunje->getQuery();
-
-        $this->assertEquals('select * from "table" order by "species" asc', $query->toSql());
+        $builder = $sprunje->getQuery();
+        $builder->shouldReceive('orderBy')->once()->with('species', 'asc');
+        $sprunje->applySorts($builder);
     }
 
-    function testSprunjeCallsBuilderWhereMethod()
-    {
-        $connection = $this->getMockBuilder('Illuminate\Database\ConnectionInterface')->getMock();
-        $grammar = new \Illuminate\Database\Query\Grammars\Grammar;
-        $processor = $this->getMockBuilder('Illuminate\Database\Query\Processors\Processor')->getMock();
-        $builder = $this->getMockBuilder(Builder::class)
-                    ->setConstructorArgs([$connection, $grammar, $processor])
-                    ->setMethods(['orLike'])
-                    ->getMock();
-        
-        $builder->expects($this->once())->method('where');
-        //$builder->expects($this->once())->method('orLike');
-        /*
-        $connection = m::mock('Illuminate\Database\ConnectionInterface');
-        $grammar = new \Illuminate\Database\Query\Grammars\Grammar;
-        $processor = m::mock('Illuminate\Database\Query\Processors\Processor');
-        $builder = m::mock(Builder::class, [$connection, $grammar, $processor])
-            ->makePartial();
-            
-        $builder->shouldReceive('from')->atLeast()->times(0);
-        $builder->shouldReceive('where')->atLeast()->times(1);
-        */
-
-        $sprunje = new SprunjeWithFiltersStub([
-            'filters' => [
-                'species' => 'Tyto'
-            ]
-        ]);
-
-        $sprunje->setQuery($builder);
-        $sprunje->applyFilters();
-    }
 }
 
 class SprunjeStub extends Sprunje
 {
+    protected $filterable = [
+        'species'
+    ];
+
+    protected $sortable = [
+        'species'
+    ];
+
     public function __construct($options)
     {
         $classMapper = new ClassMapper();
         parent::__construct($classMapper, $options);
     }
-    
-    public function applyFilters()
-    {
-        return parent::applyFilters();
-    }
-    
+
     protected function baseQuery()
     {
-        $connection = m::mock('Illuminate\Database\ConnectionInterface');
-        $grammar = new \Illuminate\Database\Query\Grammars\Grammar;
-        $processor = m::mock('Illuminate\Database\Query\Processors\Processor');
-        $builder = new Builder($connection, $grammar, $processor);
-        
-        return $builder->from('table');
+        // We use a partial mock for Builder, because we need to be able to run some of its actual methods.
+        // For example, we need to be able to run the `where` method with a closure.
+        $builder = m::mock(Builder::class);
+        $builder->makePartial();
+
+        return $builder;
     }
-}
-
-class SprunjeWithFiltersStub extends SprunjeStub
-{
-    protected $filterable = [
-        'species'
-    ];
-}
-
-class SprunjeWithSortsStub extends SprunjeStub
-{
-    protected $sortable = [
-        'species'
-    ];
 }
 
 class SprunjeTestModelStub extends Model

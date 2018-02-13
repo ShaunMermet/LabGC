@@ -64,7 +64,7 @@ class PermissionController extends SimpleController
         }
 
         // Get permission
-        $result = $classMapper->staticMethod('permission', 'where', 'id', $permissionId)->with('users')->get()->toArray();
+        $result = $permission->load('users')->toArray();
 
         // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
         // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
@@ -127,19 +127,11 @@ class PermissionController extends SimpleController
             throw new ForbiddenException();
         }
 
-        $permissionId = $args['id'];
-
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
 
-        $permission = $classMapper->staticMethod('permission', 'find', $permissionId);
+        $params['permission_id'] = $args['id'];
 
-        // If the permission doesn't exist, return 404
-        if (!$permission) {
-            throw new NotFoundException($request, $response);
-        }
-
-        $params['permission_id'] = $permissionId;
         $sprunje = $classMapper->createInstance('permission_user_sprunje', $classMapper, $params);
 
         $response = $sprunje->toResponse($response);

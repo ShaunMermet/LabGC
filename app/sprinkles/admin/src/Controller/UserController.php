@@ -19,7 +19,7 @@ use UserFrosting\Fortress\ServerSideValidator;
 use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
 use UserFrosting\Sprinkle\Account\Database\Models\Group;
 use UserFrosting\Sprinkle\Account\Database\Models\User;
-use UserFrosting\Sprinkle\Account\Util\Password;
+use UserFrosting\Sprinkle\Account\Facades\Password;
 use UserFrosting\Sprinkle\Core\Controller\SimpleController;
 use UserFrosting\Sprinkle\Core\Facades\Debug;
 use UserFrosting\Sprinkle\Core\Mail\EmailRecipient;
@@ -85,12 +85,12 @@ class UserController extends SimpleController
         $classMapper = $this->ci->classMapper;
 
         // Check if username or email already exists
-        if ($classMapper->staticMethod('user', 'exists', $data['user_name'], 'user_name')) {
+        if ($classMapper->staticMethod('user', 'findUnique', $data['user_name'], 'user_name')) {
             $ms->addMessageTranslated('danger', 'USERNAME.IN_USE', $data);
             $error = true;
         }
 
-        if ($classMapper->staticMethod('user', 'exists', $data['email'], 'email')) {
+        if ($classMapper->staticMethod('user', 'findUnique', $data['email'], 'email')) {
             $ms->addMessageTranslated('danger', 'EMAIL.IN_USE', $data);
             $error = true;
         }
@@ -226,7 +226,7 @@ class UserController extends SimpleController
             $this->ci->mailer->send($message);
         });
 
-        $ms->addMessageTranslated("success", "PASSWORD.FORGET.REQUEST_SENT", [
+        $ms->addMessageTranslated('success', 'PASSWORD.FORGET.REQUEST_SENT', [
             'email' => $user->email
         ]);
         return $response->withStatus(200);
@@ -383,9 +383,6 @@ class UserController extends SimpleController
             throw new ForbiddenException();
         }
 
-        // Exclude password from result set
-        unset($user->password);
-
         $result = $user->toArray();
 
         // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
@@ -530,7 +527,7 @@ class UserController extends SimpleController
             $groups = $classMapper->staticMethod('group', 'all');
         } else {
             // Get the current user's group
-            $groups = $classMapper->staticMethod('group', 'where', 'id', $currentUser->group_id);
+            $groups = $currentUser->group()->get();
             $fields['disabled'][] = 'group';
         }
 
@@ -555,7 +552,7 @@ class UserController extends SimpleController
                 'action' => 'api/users',
                 'method' => 'POST',
                 'fields' => $fields,
-                'submit_text' => $translator->translate("CREATE")
+                'submit_text' => $translator->translate('CREATE')
             ],
             'page' => [
                 'validators' => $validator->rules('json', false)
@@ -642,7 +639,7 @@ class UserController extends SimpleController
                 'action' => "api/users/u/{$user->user_name}",
                 'method' => 'PUT',
                 'fields' => $fields,
-                'submit_text' => $translator->translate("UPDATE")
+                'submit_text' => $translator->translate('UPDATE')
             ],
             'page' => [
                 'validators' => $validator->rules('json', false)
@@ -731,6 +728,52 @@ class UserController extends SimpleController
         return $this->ci->view->render($response, 'modals/user-manage-roles.html.twig', [
             'user' => $user
         ]);
+    }
+
+    /**
+     * Returns a list of effective Permissions for a specified User.
+     *
+     * Generates a list of permissions, optionally paginated, sorted and/or filtered.
+     * This page requires authentication.
+     * Request type: GET
+     */
+    public function getPermissions($request, $response, $args)
+    {
+        $user = $this->getUserFromParams($args);
+
+        // If the user doesn't exist, return 404
+        if (!$user) {
+            throw new NotFoundException($request, $response);
+        }
+
+        // GET parameters
+        $params = $request->getQueryParams();
+
+        /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
+        $authorizer = $this->ci->authorizer;
+
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
+        $currentUser = $this->ci->currentUser;
+
+        // Access-controlled page
+        if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
+            'user' => $user,
+            'property' => 'permissions'
+        ])) {
+            throw new ForbiddenException();
+        }
+
+        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
+        $classMapper = $this->ci->classMapper;
+
+        $params['user_id'] = $user->id;
+        $sprunje = $classMapper->createInstance('user_permission_sprunje', $classMapper, $params);
+
+        $response = $sprunje->toResponse($response);
+
+        // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
+        // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
+        return $response;
     }
 
     /**
@@ -881,11 +924,31 @@ class UserController extends SimpleController
             $editButtons['hidden'][] = 'delete';
         }
 
+        // Determine widgets to display
+        $widgets = [
+            'hidden' => []
+        ];
+
+        if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
+            'user' => $user,
+            'property' => 'permissions'
+        ])) {
+            $widgets['hidden'][] = 'permissions';
+        }
+
+        if (!$authorizer->checkAccess($currentUser, 'view_user_field', [
+            'user' => $user,
+            'property' => 'activities'
+        ])) {
+            $widgets['hidden'][] = 'activities';
+        }
+
         return $this->ci->view->render($response, 'pages/user.html.twig', [
             'user' => $user,
             'locales' => $locales,
             'fields' => $fields,
-            'tools' => $editButtons
+            'tools' => $editButtons,
+            'widgets' => $widgets
         ]);
     }
 
@@ -998,7 +1061,7 @@ class UserController extends SimpleController
         if (
             isset($data['email']) &&
             $data['email'] != $user->email &&
-            $classMapper->staticMethod('user', 'exists', $data['email'], 'email')
+            $classMapper->staticMethod('user', 'findUnique', $data['email'], 'email')
         ) {
             $ms->addMessageTranslated('danger', 'EMAIL.IN_USE', $data);
             $error = true;
@@ -1121,26 +1184,28 @@ class UserController extends SimpleController
         // Special checks and transformations for certain fields
         if ($fieldName == 'flag_enabled') {
             // Check that we are not disabling the master account
-            if (($user->id == $config['reserved_user_ids.master']) &&
+            if (
+                ($user->id == $config['reserved_user_ids.master']) &&
                 ($fieldValue == '0')
             ) {
                 $e = new BadRequestException();
                 $e->addUserMessage('DISABLE_MASTER');
                 throw $e;
-            } else if (($user->id == $currentUser->id) &&
+            } elseif (
+                ($user->id == $currentUser->id) &&
                 ($fieldValue == '0')
             ) {
                 $e = new BadRequestException();
                 $e->addUserMessage('DISABLE_SELF');
                 throw $e;
             }
-        } else if ($fieldName == 'password') {
+        } elseif ($fieldName == 'password') {
             $fieldValue = Password::hash($fieldValue);
         }
 
         // Begin transaction - DB will be rolled back if an exception occurs
         Capsule::transaction( function() use ($fieldName, $fieldValue, $user, $currentUser) {
-            if ($fieldName == "roles") {
+            if ($fieldName == 'roles') {
                 $newRoles = collect($fieldValue)->pluck('role_id')->all();
                 $user->roles()->sync($newRoles);
             } else {
@@ -1166,7 +1231,7 @@ class UserController extends SimpleController
                     'user_name' => $user->user_name
                 ]);
             }
-        } else if ($fieldName == 'flag_verified') {
+        } elseif ($fieldName == 'flag_verified') {
             $ms->addMessageTranslated('success', 'MANUALLY_ACTIVATED', [
                 'user_name' => $user->user_name
             ]);

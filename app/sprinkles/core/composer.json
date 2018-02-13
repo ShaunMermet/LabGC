@@ -1,6 +1,6 @@
 {
     "name": "userfrosting/sprinkle-core",
-    "type": "sprinkle",
+    "type": "userfrosting-sprinkle",
     "description": "Core module for UserFrosting.",
     "keywords": ["php user management", "usercake", "bootstrap"],
     "homepage": "https://github.com/userfrosting/UserFrosting",
@@ -11,14 +11,13 @@
             "homepage": "https://alexanderweissman.com"
         }
     ],
-    "version": "4.1.0-dev",
     "require": {
         "doctrine/dbal": "^2.5",
         "filp/whoops": "^2.1",
-        "illuminate/cache": "^5.4",
-        "illuminate/database": "^5.4",
-        "illuminate/events": "^5.4",
-        "illuminate/filesystem": "^5.4",
+        "illuminate/cache": "5.4.*",
+        "illuminate/database": "5.4.*",
+        "illuminate/events": "5.4.*",
+        "illuminate/filesystem": "5.4.*",
         "league/csv": "^8.1",
         "monolog/monolog": "^1",
         "phpmailer/phpmailer": "5.2.10",
@@ -31,10 +30,10 @@
         "userfrosting/assets": "~4.1.0",
         "userfrosting/config": "~4.1.0",
         "userfrosting/cache": "~4.1.0",
-        "userfrosting/fortress": "~4.1.0",
+        "userfrosting/fortress": "~4.1.1",
         "userfrosting/i18n": "~4.1.0",
         "userfrosting/session": "~4.1.0",
-        "userfrosting/support": "~4.1.0",
+        "userfrosting/support": "~4.1.1",
         "vlucas/phpdotenv": "^2"
     },
     "autoload": {

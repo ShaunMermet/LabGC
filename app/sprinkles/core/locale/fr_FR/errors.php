@@ -1,14 +1,14 @@
 <?php
-
 /**
- * fr_FR
+ * UserFrosting (http://www.userfrosting.com)
  *
- * French message token translations for the core sprinkle.
+ * @link      https://github.com/userfrosting/UserFrosting
+ * @license   https://github.com/userfrosting/UserFrosting/blob/master/licenses/UserFrosting.md (MIT License)
  *
- * @package UserFrosting
- * @link http://www.userfrosting.com/components/#i18n
- * @author Alexander Weissman
- * @translator Louis Charette
+ * French message token translations for the 'core' sprinkle.
+ *
+ * @package userfrosting\i18n\fr
+ * @author Louis Charette
  */
 
 return [
@@ -25,7 +25,7 @@ return [
             "DESCRIPTION" => "Nous ne pouvons trouver ce que vous cherchez.",
             "DETAIL" => "Nous avons tout tenté...",
             "EXPLAIN" => "Nous ne pouvons trouver la page que vous cherchez.",
-            "RETURN" => 'Cliquez <a href="{{url}}">ici</a> pour retourner à la page d\'acceuil.'
+            "RETURN" => 'Cliquez <a href="{{url}}">ici</a> pour retourner à la page d\'accueil.'
         ],
 
         "CONFIG" => [

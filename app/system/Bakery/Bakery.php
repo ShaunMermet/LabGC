@@ -33,9 +33,8 @@ class Bakery
      */
     public function __construct()
     {
-        // Check for `sprinkles.json`
-        $path = \UserFrosting\APP_DIR . '/sprinkles.json';
-        $sprinklesFile = @file_get_contents($path);
+        // Check for Sprinkles schema file
+        $sprinklesFile = @file_get_contents(\UserFrosting\SPRINKLES_SCHEMA_FILE);
         if ($sprinklesFile === false) {
             $sprinklesFile = $this->setupBaseSprinkleList();
         }
@@ -136,9 +135,7 @@ class Bakery
      */
     protected function commandDirectoryPath($sprinkleName)
     {
-        return \UserFrosting\APP_DIR .
-               \UserFrosting\DS .
-               \UserFrosting\SPRINKLES_DIR_NAME .
+        return \UserFrosting\SPRINKLES_DIR .
                \UserFrosting\DS .
                $sprinkleName .
                \UserFrosting\DS .
@@ -147,7 +144,7 @@ class Bakery
     }
 
     /**
-     * Write the base `sprinkles.json` file if none exist.
+     * Write the base Sprinkles schema file if it doesn't exist.
      *
      * @access protected
      * @return void
@@ -155,7 +152,7 @@ class Bakery
     protected function setupBaseSprinkleList()
     {
         $model = \UserFrosting\APP_DIR . '/sprinkles.example.json';
-        $destination = \UserFrosting\APP_DIR . '/sprinkles.json';
+        $destination = \UserFrosting\SPRINKLES_SCHEMA_FILE;
         $sprinklesModelFile = @file_get_contents($model);
         if ($sprinklesModelFile === false) {
             $this->io->error("File `$sprinklesModelFile` not found. Please create '$destination' manually and try again.");

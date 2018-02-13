@@ -52,24 +52,5 @@ class ServicesProvider
             $classMapper->setClassMapping('operation_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\OperationSprunje');
             return $classMapper;
         });
-
-        /**
-         * Returns a callback that handles setting the `UF-Redirect` header after a successful login.
-         */
-        $container['determineRedirectOnLogin'] = function ($c) {
-            return function ($response) use ($c)
-            {
-                /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager */
-                $authorizer = $c->authorizer;
-
-                $currentUser = $c->authenticator->user();
-
-                if ($authorizer->checkAccess($currentUser, 'uri_dashboard')) {
-                    return $response->withHeader('UF-Redirect', $c->router->pathFor('dashboard'));
-                } else {
-                    return $response->withHeader('UF-Redirect', $c->router->pathFor('index'));
-                }
-            };
-        };
     }
 }

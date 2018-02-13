@@ -16,32 +16,35 @@
 {% block page_description %}{{translate("PORTAL.WELCOME")}}{% endblock %}
 
 {% block body_matter %}
-  <div id="linediv" style="display:flex">
-  <div id="googleMap" style="height:calc(100vh - 198px);width: 80%;"></div>
+  
   <div class="row">
-      <div class="col-md-12">
-          <div id="widget-drones" class="box box-primary">
-              <div class="box-header">
-                  <h3 class="box-title pull-left"><i class="fa fa-cab"></i> {{translate('DRONES', 2)}}</h3>
-                  {% include "tables/table-tool-menu.html.twig" %}
-              </div>
-              <div class="box-body">
-                  {% include "tables/drones.html.twig" with {
-                          "table" : {
-                              "id" : "table-drone",
-                              "columns" : ["last_activity"]
-                          }
-                      }
-                  %}
-              </div>
-              <div class="box-footer">
-                  <button type="button" class="btn btn-success js-user-create">
-                      <i class="fa fa-plus-square"></i>  {{ translate("DRONE.CREATE")}}
-                  </button>
-              </div>
-          </div>
+    <div class="col-md-12">
+      <div class="col-lg-8">
+        <div id="googleMap" style="height:calc(100vh - 198px);width: 100%;"></div>
       </div>
-  </div>
+      <div class="col-lg-4">
+        <div id="widget-drones" class="box box-primary">
+          <div class="box-header">
+              <h3 class="box-title pull-left"><i class="fa fa-cab"></i> {{translate('DRONES', 2)}}</h3>
+              {% include "tables/table-tool-menu.html.twig" %}
+          </div>
+          <div class="box-body">
+              {% include "tables/drones.html.twig" with {
+                      "table" : {
+                          "id" : "table-drone",
+                          "columns" : ["last_activity"]
+                      }
+                  }
+              %}
+          </div>
+          <div class="box-footer">
+              <button type="button" class="btn btn-success js-user-create">
+                  <i class="fa fa-plus-square"></i>  {{ translate("DRONE.CREATE")}}
+              </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <script>
     

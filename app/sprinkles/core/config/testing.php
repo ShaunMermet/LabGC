@@ -11,7 +11,13 @@
                 'default' => 'array',
             ]
         ],
+        'db' => [
+            'test_integration' => [
+                'driver'    => 'sqlite',
+                'database'  => ':memory:',
+            ]
+        ],
         'settings' => [
             'displayErrorDetails' => false
-        ],
+        ]
     ];

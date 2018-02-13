@@ -5,7 +5,8 @@
  # to render the table cells with the data from the AJAX request.
 #}
 
-{% extends "tables/table-paginated.html.twig" %}
+{% extends "@core/tables/table-paginated.html.twig" %}
+
 
 {% block table %}
     <table id="{{table.id}}" class="tablesorter table table-bordered table-hover table-striped" data-sortlist="{{table.sortlist}}">
@@ -43,7 +44,7 @@
     <script id="user-table-column-drone" type="text/x-handlebars-template">
         <td data-text="{{row.drone_id}}" >
             <strong>
-                <a href="{{site.uri.public}}/drone/{{row.drone_id}}">{{row.drone_id}}</a>
+                <a href="{{site.uri.public}}/operation/drone/{{row.drone_id}}">{{row.drone_id}}</a>
             </strong>
         </td>
     </script>

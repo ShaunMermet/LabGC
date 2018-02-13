@@ -15,10 +15,8 @@ use UserFrosting\System\Bakery\BaseCommand;
 use UserFrosting\System\Bakery\DatabaseTest;
 
 /**
- * Debug CLI Tools.
- * Perform the preflight check for UserFrosting install
+ * Debug CLI tool.
  *
- * @extends Bakery
  * @author Alex Weissman (https://alexanderweissman.com)
  */
 class Debug extends BaseCommand
@@ -113,7 +111,7 @@ class Debug extends BaseCommand
     }
 
     /**
-     * List all sprinkles defined in the `sprinkles.json` file,
+     * List all sprinkles defined in the Sprinkles schema file,
      * making sure this file exist at the same time
      *
      * @access protected
@@ -121,8 +119,8 @@ class Debug extends BaseCommand
      */
     protected function listSprinkles()
     {
-        // Check for `sprinkles.json`
-        $path = \UserFrosting\APP_DIR . '/sprinkles.json';
+        // Check for Sprinkles schema file
+        $path = \UserFrosting\SPRINKLES_SCHEMA_FILE;
         $sprinklesFile = @file_get_contents($path);
         if ($sprinklesFile === false) {
             $this->io->error("The file `$path` not found.");
@@ -149,11 +147,11 @@ class Debug extends BaseCommand
      */
     protected function checkDatabase()
     {
-        $this->io->section("Testing database connexion...");
+        $this->io->section("Testing database connection...");
 
         try {
             $this->testDB();
-            $this->io->writeln("Database connexion successful");
+            $this->io->writeln("Database connection successful");
             return;
         } catch (\Exception $e) {
             $error = $e->getMessage();

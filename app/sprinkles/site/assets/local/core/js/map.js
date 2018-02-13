@@ -4,7 +4,7 @@ function myMap() {
 
   //var position = [35.854766, 139.517407];
 
-  var myCenter = new google.maps.LatLng(1.360344, 103.961401);
+  var myCenter = new google.maps.LatLng(35.854766, 139.517407);
   var copterPos = new google.maps.LatLng(35.854665, 139.517731);
   var planePos = new google.maps.LatLng(35.854400, 139.517731);
   var roverPos = new google.maps.LatLng(35.854599, 139.517964);
@@ -15,10 +15,11 @@ function myMap() {
   var sdcar2Pos = new google.maps.LatLng(1.349722, 103.964051);
   var sdcar3Pos = new google.maps.LatLng(1.399937, 103.856724);
   var sdcar4Pos = new google.maps.LatLng(1.343373, 103.860524);
-  
+  var rov1Pos = new google.maps.LatLng(1.318788, 104.024055);
+
   var mapProp= {
       center:myCenter,
-      zoom:13,
+      zoom:20,
       mapTypeId:google.maps.MapTypeId.HYBRID
   };
   map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
@@ -79,6 +80,12 @@ function myMap() {
       id: "drone3"
     });
   markers["drone3Marker"] = drone3Marker;
+  var rov1Marker = new google.maps.Marker({
+      position: rov1Pos,
+      icon: "ImgRsrc/maps/ROV_50.png",
+      id: "rov1"
+    });
+  markers["rov1Marker"] = rov1Marker;
 
   copterMarker.setMap(map);
   planeMarker.setMap(map);
@@ -90,6 +97,7 @@ function myMap() {
   sdcar2Marker.setMap(map);
   sdcar3Marker.setMap(map);
   sdcar4Marker.setMap(map);
+  rov1Marker.setMap(map);
 
   google.maps.event.addListener(copterMarker,'click',function() {
       //map.setZoom(18);
@@ -107,38 +115,87 @@ function myMap() {
   });
   google.maps.event.addListener(drone1Marker,'click',function() {
       map.setCenter(drone1Marker.getPosition());
-      window.open("drone/1",'_blank');
+      window.open("operation/drone/1",'_blank');
   });
   google.maps.event.addListener(drone2Marker,'click',function() {
       map.setCenter(drone1Marker.getPosition());
-      window.open("drone/2",'_blank');
+      window.open("operation/drone/2",'_blank');
   });
   google.maps.event.addListener(map, 'click', function(event) {
     var result = [event.latLng.lat(), event.latLng.lng()];
     transition(result,planeMarker);
   });
+
+
   google.maps.event.addListener(sdcar1Marker,'click',function() {
-      window.open("drone/3",'_blank');
+      window.open("operation/drone/3",'_blank');
   });
+  google.maps.event.addListener(sdcar1Marker,'mouseover',function() {
+      sdcar1hover();
+  });
+  google.maps.event.addListener(sdcar1Marker,'mouseout',function() {
+      sdcar1out();
+  });
+
   google.maps.event.addListener(sdcar2Marker,'click',function() {
-      window.open("drone/4",'_blank');
+      window.open("operation/drone/4",'_blank');
   });
+  google.maps.event.addListener(sdcar2Marker,'mouseover',function() {
+      sdcar2hover();
+  });
+  google.maps.event.addListener(sdcar2Marker,'mouseout',function() {
+      sdcar2out();
+  });
+
   google.maps.event.addListener(sdcar3Marker,'click',function() {
-      window.open("drone/5",'_blank');
+      window.open("operation/drone/5",'_blank');
   });
+  google.maps.event.addListener(sdcar3Marker,'mouseover',function() {
+      sdcar3hover();
+  });
+  google.maps.event.addListener(sdcar3Marker,'mouseout',function() {
+      sdcar3out();
+  });
+
   google.maps.event.addListener(sdcar4Marker,'click',function() {
-      window.open("drone/6",'_blank');
+      window.open("operation/drone/6",'_blank');
   });
-  google.maps.event.addListener(drone2Marker,'click',function() {
-      window.open("drone/7",'_blank');
+  google.maps.event.addListener(sdcar4Marker,'mouseover',function() {
+      sdcar4hover();
   });
+  google.maps.event.addListener(sdcar4Marker,'mouseout',function() {
+      sdcar4out();
+  });
+
+  google.maps.event.addListener(drone3Marker,'click',function() {
+      window.open("operation/drone/7",'_blank');
+  });
+  google.maps.event.addListener(drone3Marker,'mouseover',function() {
+      drone3hover();
+  });
+  google.maps.event.addListener(drone3Marker,'mouseout',function() {
+      drone3out();
+  });
+
+  google.maps.event.addListener(rov1Marker,'click',function() {
+      window.open("operation/drone/8",'_blank');
+  });
+  google.maps.event.addListener(rov1Marker,'mouseover',function() {
+      rov1hover();
+  });
+  google.maps.event.addListener(rov1Marker,'mouseout',function() {
+      rov1out();
+  });
+
 
   var destinations = [];
 
   setInterval(drone1Loop,60000);
   setInterval(drone2Loop,60000);
+  setInterval(drone3Loop,182000);
   drone1Loop();
   drone2Loop();
+  drone3Loop();
   setInterval(sdcar1Loop,182000);
   setInterval(sdcar2Loop,117000);
   setInterval(sdcar3Loop,390000);
@@ -147,6 +204,8 @@ function myMap() {
   sdcar2Loop();
   sdcar3Loop();
   sdcar4Loop();
+  setInterval(rov1Loop,52000);
+  rov1Loop();
 
   
   function transition(dest,marker){
@@ -192,6 +251,22 @@ function myMap() {
     setTimeout(transition.bind(null,[35.853889, 139.520346],drone2Marker),15000);
     setTimeout(transition.bind(null,[35.853389, 139.515218],drone2Marker),30000);
     setTimeout(transition.bind(null,[35.856356, 139.515067],drone2Marker),45000);
+  }
+  function drone3Loop(){
+    transition([1.389331, 104.077785],drone3Marker);
+    setTimeout(transition.bind(null,[1.396107, 104.078360],drone3Marker),13000);
+    setTimeout(transition.bind(null,[1.385741, 104.049296],drone3Marker),26000);
+    setTimeout(transition.bind(null,[1.390588, 104.046320],drone3Marker),39000);
+    setTimeout(transition.bind(null,[1.403634, 104.080817],drone3Marker),52000);
+    setTimeout(transition.bind(null,[1.409642, 104.083432],drone3Marker),65000);
+    setTimeout(transition.bind(null,[1.396544, 104.041210],drone3Marker),78000);
+    setTimeout(transition.bind(null,[1.403576, 104.038192],drone3Marker),91000);
+    setTimeout(transition.bind(null,[1.418937, 104.076202],drone3Marker),104000);
+    setTimeout(transition.bind(null,[1.425301, 104.068211],drone3Marker),117000);
+    setTimeout(transition.bind(null,[1.413146, 104.033072],drone3Marker),130000);
+    setTimeout(transition.bind(null,[1.421475, 104.032867],drone3Marker),143000);
+    setTimeout(transition.bind(null,[1.427783, 104.045412],drone3Marker),156000);
+    setTimeout(transition.bind(null,[1.379763, 104.051536],drone3Marker),169000);
   }
 
   function sdcar1Loop(){
@@ -279,6 +354,13 @@ function myMap() {
     setTimeout(transition.bind(null,[1.343373, 103.860524],sdcar4Marker),247000);
   }
 
+  function rov1Loop(){
+    transition([1.312046, 104.023927],rov1Marker);
+    setTimeout(transition.bind(null,[1.312089, 104.028219],rov1Marker),13000);
+    setTimeout(transition.bind(null,[1.318314, 104.028070],rov1Marker),26000);
+    setTimeout(transition.bind(null,[1.318788, 104.024055],rov1Marker),39000);
+  }
+
 }
 function drone1hover(){
     markers["drone1Marker"].setIcon(highlightedIcon());
@@ -292,6 +374,12 @@ function drone2hover(){
 }
 function drone2out(){
     markers["drone2Marker"].setIcon(normalIcon());
+}
+function drone3hover(){
+      markers["drone3Marker"].setIcon(highlightedIcon());
+}
+function drone3out(){
+    markers["drone3Marker"].setIcon(normalIcon());
 }
 function sdcar1hover(){
     markers["sdcar1Marker"].setIcon(highlightedIconSDC());
@@ -318,6 +406,12 @@ function sdcar4hover(){
 function sdcar4out(){
     markers["sdcar4Marker"].setIcon(normalIconSDC());
 }
+function rov1hover(){
+      markers["rov1Marker"].setIcon(highlightedIconROV());
+}
+function rov1out(){
+    markers["rov1Marker"].setIcon(normalIconROV());
+}
 
 function normalIcon() {
   return {
@@ -339,7 +433,20 @@ function highlightedIconSDC() {
     url: 'ImgRsrc/maps/selfDrivingCarSmallHover.png'
   };
 }
+function normalIconROV() {
+  return {
+    url: 'ImgRsrc/maps/ROV_50.png'
+  };
+}
+function highlightedIconROV() {
+  return {
+    url: 'ImgRsrc/maps/ROV_50_Hover.png'
+  };
+}
 
 function gmapCenterOnMarker(markerName){
   map.setCenter(markers[markerName+"Marker"].getPosition());
+}
+function gmapDroneDetails(droneId){
+  window.open("operation/drone/"+droneId,'_blank');
 }

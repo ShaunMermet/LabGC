@@ -24,6 +24,19 @@
                 }
             }
         },
+        "js/pages/groups": {
+            "scripts": [
+                "userfrosting/js/widgets/groups.js",
+                "userfrosting/js/pages/groups.js"
+            ],
+            "options": {
+                "result": {
+                    "type": {
+                        "scripts": "plain"
+                    }
+                }
+            }
+        },
         "js/pages/drones": {
             "scripts": [
                 "local/core/js/drones.js",

@@ -11,7 +11,9 @@
             ]
         ],    
         'debug' => [
-            'auth' => true
+            'auth' => true,
+            'queries' => true,
+            'smtp' => true,
         ],
         'site' => [
             'author'    =>      '',
@@ -30,15 +32,18 @@
                 // This can be a comma-separated list, to load multiple fallback locales
                 'default' => 'en_US'
             ],
-            'title'     =>      'LabGC',
+            'title'     =>      'C.O.S.M.O.S.',
             // URLs
             'uri' => [
                 'author' => ''
             ],
             'registration' => [
                 'user_defaults' => [
-                    'group' => 'Public'
+                    'group' => 'default'
                 ]
+            ],
+            'debug' => [
+                'ajax' => true
             ]
         ],   
         'timezone' => 'Asia/Tokyo'        

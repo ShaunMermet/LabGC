@@ -15,7 +15,7 @@ use PhpParser\Parser as Parser;
 use PhpParser\PrettyPrinter\Standard as StandardPrettyPrinter;
 use PhpParser\Error as PhpParserException;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use UserFrosting\Sprinkle\Account\Database\Models\User;
+use UserFrosting\Sprinkle\Site\Database\Models\User;
 
 /**
  * AccessConditionExpression class

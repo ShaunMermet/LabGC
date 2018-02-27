@@ -8,7 +8,7 @@
 namespace UserFrosting\Sprinkle\Account\Authorize;
 
 use Interop\Container\ContainerInterface;
-use UserFrosting\Sprinkle\Account\Database\Models\User;
+use UserFrosting\Sprinkle\Site\Database\Models\User;
 
 /**
  * AuthorizationManager class.

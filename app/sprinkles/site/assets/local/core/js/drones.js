@@ -22,7 +22,7 @@ $(document).ready(function() {
 
 
     // Bind creation button
-//    bindUserCreationButton($("#widget-users"));
+    bindDroneCreationButton($("#widget-drones"));
 
     // Bind table buttons
     $("#widget-drones").on("pagerComplete.ufTable", function () {

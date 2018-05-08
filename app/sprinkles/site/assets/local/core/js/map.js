@@ -23,6 +23,24 @@ function myMap() {
       mapTypeId:google.maps.MapTypeId.HYBRID
   };
   map=new google.maps.Map(document.getElementById("googleMap"),mapProp);
+
+  var copterIcon = {
+    url: "ImgRsrc/maps/copter.png",
+    // This marker is 20 pixels wide by 32 pixels high.
+    //size: new google.maps.Size(20, 32),
+    // The origin for this image is (0, 0).
+    //origin: new google.maps.Point(0, 0),
+    // The anchor for this image is the base of the flagpole at (0, 32).
+    //anchor: new google.maps.Point(0, 32),
+    labelOrigin: new google.maps.Point(25, 60)
+  };
+  var testMarker = new google.maps.Marker({
+    position: myCenter,
+    map: map,
+    title: 'Hello World!',
+    label: "Hello" ,
+    icon:copterIcon
+  });
   var copterMarker = new google.maps.Marker({
       position: copterPos,
       icon: "ImgRsrc/maps/copter.png",
@@ -40,14 +58,16 @@ function myMap() {
     });
   var drone1Marker = new google.maps.Marker({
       position: drone1Pos,
-      icon: "ImgRsrc/maps/copter.png",
-      id: "drone1"
+      icon: copterIcon,
+      id: "drone1",
+      label: {text: "Drone 1", color: "blue"}
     });
   markers["drone1Marker"] = drone1Marker;
   var drone2Marker = new google.maps.Marker({
       position: drone2Pos,
-      icon: "ImgRsrc/maps/copter.png",
-      id: "drone2"
+      icon: copterIcon,
+      id: "drone2",
+      label: {text: "Drone 2", color: "red"}
     });
   markers["drone2Marker"] = drone2Marker;
   var sdcar1Marker = new google.maps.Marker({
@@ -87,6 +107,11 @@ function myMap() {
     });
   markers["rov1Marker"] = rov1Marker;
 
+  var infowindowDrone1 = new google.maps.InfoWindow({
+          content: "<div>Drone 1 <BR/>X : 35.854766<BR/>Y : 139.517407</div>"
+        });
+
+  testMarker.setMap(map);
   copterMarker.setMap(map);
   planeMarker.setMap(map);
   roverMarker.setMap(map);
@@ -98,6 +123,8 @@ function myMap() {
   sdcar3Marker.setMap(map);
   sdcar4Marker.setMap(map);
   rov1Marker.setMap(map);
+
+  infowindowDrone1.open(map, drone1Marker);
 
   google.maps.event.addListener(copterMarker,'click',function() {
       //map.setZoom(18);
@@ -239,12 +266,24 @@ function myMap() {
 
   
   function drone1Loop(){
+    //infowindowDrone1.setContent("Salut !");
     transition([35.853864, 139.518104],drone1Marker);
+    infowindowDrone1.setContent("<div>Drone 1 <BR/>X : 35.853864<BR/>Y : 139.518104</div>");
+
     setTimeout(transition.bind(null,[35.853991, 139.518462],drone1Marker),10000);
+    //infowindowDrone1.setContent("<div>Drone 1 <BR/>X : 35.853991<BR/>Y : 139.518462</div>");
+
     setTimeout(transition.bind(null,[35.854161, 139.518360],drone1Marker),20000);
+    //infowindowDrone1.setContent("<div>Drone 1 <BR/>X : 35.854161<BR/>Y : 139.518360</div>");
+
     setTimeout(transition.bind(null,[35.854357, 139.518748],drone1Marker),30000);
+   // infowindowDrone1.setContent("<div>Drone 1 <BR/>X : 35.854357<BR/>Y : 139.518748</div>");
+
     setTimeout(transition.bind(null,[35.855135, 139.518147],drone1Marker),40000);
+    //infowindowDrone1.setContent("<div>Drone 1 <BR/>X : 35.855135<BR/>Y : 139.518147</div>");
+
     setTimeout(transition.bind(null,[35.854766, 139.517407],drone1Marker),50000);
+    //infowindowDrone1.setContent("<div>Drone 1 <BR/>X : 35.854766<BR/>Y : 139.517407</div>");
   }
   function drone2Loop(){
     transition([35.856740, 139.519426],drone2Marker);

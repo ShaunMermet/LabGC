@@ -8,9 +8,9 @@
  */
 
 $(document).ready(function() {
-    // Set up table of users
+    // Set up table of drones
     $("#widget-drones").ufTable({
-        dataUrl: site.uri.public + "/api/drones"
+        dataUrl: site.uri.public + "/api/drones/my"
     });
 
     $("#drone1").hover(

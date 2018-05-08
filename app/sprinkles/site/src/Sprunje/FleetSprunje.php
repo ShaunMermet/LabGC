@@ -3,19 +3,20 @@ namespace UserFrosting\Sprinkle\Site\Sprunje;
 
 use UserFrosting\Sprinkle\Core\Facades\Debug;
 use UserFrosting\Sprinkle\Core\Sprunje\Sprunje;
-use UserFrosting\Sprinkle\Site\Model\Drone;
+use UserFrosting\Sprinkle\Site\Model\Fleet;
 
-class DroneSprunje extends Sprunje
+class FleetSprunje extends Sprunje
 {
-    protected $name = 'Drone';
+    protected $name = 'Fleet';
 
     protected $sortable = [
-        'drone_name',
+        'name',
     ];
 
     protected $filterable = [
-        'drone_name',
-        'my_drones'
+        'name',
+        'description',
+        'my_fleets'
     ];
 
     /**
@@ -23,7 +24,7 @@ class DroneSprunje extends Sprunje
      */
     protected function baseQuery()
     {
-        $query = new Drone();
+        $query = new Fleet();
 
         // Alternatively, if you have defined a class mapping, you can use the classMapper:
         // $query = $this->classMapper->createInstance('owl');
@@ -38,7 +39,7 @@ class DroneSprunje extends Sprunje
      * @param mixed $value
      * @return $this
      */
-    protected function filterMyDrones($query, $value)
+    protected function filterMyFleets($query, $value)
     {
         $query->whereIn('id', $value);
         return $this;

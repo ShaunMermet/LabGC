@@ -37,6 +37,55 @@
                 }
             }
         },
+        "js/pages/fleets": {
+            "scripts": [
+                "userfrosting/js/widgets/fleets.js",
+                "userfrosting/js/pages/fleets.js"
+            ],
+            "options": {
+                "result": {
+                    "type": {
+                        "scripts": "plain"
+                    }
+                }
+            }
+        },
+        "js/pages/janus": {
+            "scripts": [
+                "userfrosting/js/pages/janus.js"
+            ],
+            "options": {
+                "result": {
+                    "type": {
+                        "scripts": "plain"
+                    }
+                }
+            }
+        },
+        "js/pages/streaming": {
+            "scripts": [
+                "userfrosting/js/pages/streaming.js"
+            ],
+            "options": {
+                "result": {
+                    "type": {
+                        "scripts": "plain"
+                    }
+                }
+            }
+        },
+        "css/demo": {
+            "styles": [
+                "userfrosting/css/demo.css"
+            ],
+            "options": {
+                "result": {
+                    "type": {
+                        "styles": "plain"
+                    }
+                }
+            }
+        },
         "js/pages/drones": {
             "scripts": [
                 "local/core/js/drones.js",

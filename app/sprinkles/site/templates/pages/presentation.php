@@ -22,10 +22,11 @@
 
 	    	<img id="Slide1" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_1.png')}}">
 	    	<img id="Slide2" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_2.png')}}">
-	    	<img id="Slide3" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_3.png')}}">
-	    	<img id="Slide4" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_4.png')}}">
-	    	<img id="Slide5" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_5.png')}}">
-	    	<img id="Slide6" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_6.png')}}">
+	    	<img id="Slide3" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_4.png')}}">
+	    	<img id="Slide4" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_5.png')}}">
+	    	<img id="Slide5" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_6.png')}}">
+	    	<img id="Slide6" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_7.png')}}">
+	    	<img id="Slide7" src="{{assets.url('assets://userfrosting/images/presentation/Draft_Cosmos_Public_presentation_8.png')}}">
 	  	</a-assets>
 	  	<a-entity id="camera" camera="userHeight: 0" universal-controls="fly: true;movementEasingY: 15;" rotation="-22.2 81.87 0" position="-28.3 9.73 28.91"
 	    	animation__p="property: position; dir: normal; dur: 2000;
@@ -87,6 +88,13 @@
 	  	</a-image>
 	  	<a-image src="#Slide6" scale="237.045 237.045 237.045" width="9.60" height="5.40" position="737.945 1 702.395" rotation="-90 0 0">
 	  		<a-entity text="value: 6;align: center;side:double;color:#000000" position="-4 3 0" scale="10 10 1"
+  		 		animation__r1="property: rotation; dir: normal; dur: 6000;
+                       easing: linear; loop: true; to: 0 360 0"
+       		></a-entity>
+       		<a-entity ply-model="src: #torus" position="-4 3 0" scale="0.3 0.3 0.3"></a-entity>
+	  	</a-image>
+	  	<a-image src="#Slide7" scale="1 1 1" width="9.60" height="5.40" position="-3.309 7.032 -1.352" rotation="-24.809 130.233 -0.057">
+	  		<a-entity text="value: 7;align: center;side:double;" position="-4 3 0" scale="10 10 1"
   		 		animation__r1="property: rotation; dir: normal; dur: 6000;
                        easing: linear; loop: true; to: 0 360 0"
        		></a-entity>

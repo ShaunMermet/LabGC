@@ -48,6 +48,8 @@ $app->group('/api/drones', function () {
     
     $this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:getDroneSprunje');
 
+    $this->get('/my', 'UserFrosting\Sprinkle\Site\Controller\SiteController:getMyDroneSprunje');
+
 })->add('authGuard');
 $app->group('/api/droneOperations/{drone_id}', function () {
     
@@ -71,7 +73,7 @@ $app->group('/drones', function () {
 
 })->add('authGuard');
 $app->group('/data', function () {
-	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageWIP');
+	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageData');
 
 })->add('authGuard');
 
@@ -111,4 +113,32 @@ $app->group('/api/users', function () {
     $this->put('/u/{user_name}', 'UserFrosting\Sprinkle\Site\Controller\Overrides\UserController:updateInfo');
 
     //$this->put('/u/{user_name}/{field}', 'UserFrosting\Sprinkle\Admin\Controller\UserController:updateField');
+})->add('authGuard');
+
+$app->group('/fleets', function () {
+    $this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:fleetList')
+        ->setName('uri_fleets');
+
+    $this->get('/g/{slug}', 'UserFrosting\Sprinkle\Site\Controller\SiteController:fleetInfo');
+})->add('authGuard');
+$app->group('/api/fleets', function () {
+    //$this->delete('/g/{slug}', 'UserFrosting\Sprinkle\Admin\Controller\GroupController:delete');
+
+    $this->get('', 'UserFrosting\Sprinkle\Site\Controller\siteController:getFleetList');
+
+    //$this->get('/g/{slug}', 'UserFrosting\Sprinkle\Admin\Controller\GroupController:getInfo');
+
+    //$this->get('/g/{slug}/users', 'UserFrosting\Sprinkle\Admin\Controller\GroupController:getUsers');
+
+    //$this->post('', 'UserFrosting\Sprinkle\Admin\Controller\GroupController:create');
+
+    //$this->put('/g/{slug}', 'UserFrosting\Sprinkle\Admin\Controller\GroupController:updateInfo');
+})->add('authGuard');
+
+$app->group('/modals/fleets', function () {
+    //$this->get('/confirm-delete', 'UserFrosting\Sprinkle\Admin\Controller\GroupController:getModalConfirmDelete');
+
+    //$this->get('/create', 'UserFrosting\Sprinkle\Admin\Controller\GroupController:getModalCreate');
+
+    //$this->get('/edit', 'UserFrosting\Sprinkle\Admin\Controller\GroupController:getModalEdit');
 })->add('authGuard');

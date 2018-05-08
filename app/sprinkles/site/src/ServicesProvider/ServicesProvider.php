@@ -50,6 +50,8 @@ class ServicesProvider
             $classMapper->setClassMapping('drone_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\DroneSprunje');
             $classMapper->setClassMapping('operation', 'UserFrosting\Sprinkle\Site\Model\Operation');
             $classMapper->setClassMapping('operation_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\OperationSprunje');
+            $classMapper->setClassMapping('fleet', 'UserFrosting\Sprinkle\Site\Model\Fleet');
+            $classMapper->setClassMapping('fleet_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\FleetSprunje');
             
             $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\Site\Database\Models\User');
             $classMapper->setClassMapping('user_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\UserSprunje');

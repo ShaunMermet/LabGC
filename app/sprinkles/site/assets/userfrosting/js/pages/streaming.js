@@ -90,6 +90,7 @@ $(document).ready(function() {
 									Janus.log("Plugin attached! (" + streaming.getPlugin() + ", id=" + streaming.getId() + ")");
 									// Setup streaming session
 									$('#update-streams').click(updateStreamsList);
+									createTestStream();
 									updateStreamsList();
 									$('#start').removeAttr('disabled').html("Stop")
 										.click(function() {
@@ -260,6 +261,62 @@ $(document).ready(function() {
 		//$('#start').click();
 	}});
 });
+
+//Test stream
+
+function createTestStream() {
+	$('#update-streams').unbind('click').addClass('fa-spin');
+	var body = { 
+		"request" : "create",
+		//"admin_key" : "<plugin administrator key; mandatory if configured>",
+		"type" : "rtp",
+		"id" : 3,
+		"name" : "Name Camera Test",
+		"description" : "Camera Test",
+		"video" : true,
+		"permanent" : false,
+	};
+	Janus.debug("Sending message (" + JSON.stringify(body) + ")");
+	streaming.send({"message": body, success: function(result) {
+		console.log("create sucess");
+		console.log(result);
+		setTimeout(function() {
+			$('#update-streams').removeClass('fa-spin').click(updateStreamsList);
+		}, 500);
+		if(result === null || result === undefined) {
+			bootbox.alert("Got no response to our query for available streams");
+			return;
+		}
+		if(result["list"] !== undefined && result["list"] !== null) {
+			$('#streams').removeClass('hide').show();
+			$('#streamslist').empty();
+			$('#watch').attr('disabled', true).unbind('click');
+			var list = result["list"];
+			Janus.log("Got a list of available streams");
+			Janus.debug(list);
+			for(var mp in list) {
+				Janus.debug("  >> [" + list[mp]["id"] + "] " + list[mp]["description"] + " (" + list[mp]["type"] + ")");
+				$('#streamslist').append("<li><a href='#' id='" + list[mp]["id"] + "'>" + list[mp]["description"] + " (" + list[mp]["type"] + ")" + "</a></li>");
+			}
+			$('#streamslist a').unbind('click').click(function() {
+				stopStream();
+				selectedStream = $(this).attr("id");
+				startStream();
+				$('#streamset').html($(this).html()).parent().removeClass('open');
+				return false;
+			});
+			selectedStream = list[0]["id"];
+			$('#watch').removeAttr('disabled').click(startStream);
+			startStream();
+		}
+	}});
+	$('#streamset').click(function() {
+		$('#streamset').html($(this).html()).parent().addClass('open');
+		return false;
+	});
+}
+
+
 
 function updateStreamsList() {
 	$('#update-streams').unbind('click').addClass('fa-spin');

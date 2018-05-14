@@ -57,6 +57,9 @@
 
 
 {% block scripts_page %}
+  <!-- Include form widgets JS -->
+    {{ assets.js('js/form-widgets') | raw }}
+  
   <!-- Include page-specific JS -->
     {{ assets.js('js/map') | raw }}
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBUabB007mdkmQVbOD0oFcRakntnn9Snqw&callback=myMap"></script>

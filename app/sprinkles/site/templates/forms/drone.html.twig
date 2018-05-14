@@ -3,42 +3,62 @@
     <div class="js-form-alerts">
     </div>
     <div class="row">
-        {% block user_form %}
+        {% block drone_form %}
             {% if 'name' not in form.fields.hidden %}
             <div class="col-sm-6">
                 <div class="form-group">
-                    <label>{{translate('FIRST_NAME')}}</label>
+                    <label>{{translate('DRONE.NAME')}}</label>
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-edit fa-fw"></i></span>
-                        <input type="text" class="form-control" name="first_name" autocomplete="off" value="{{user.first_name}}" placeholder="{{translate('FIRST_NAME')}}" {% if 'name' in form.fields.disabled %}disabled{% endif %}>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6">
-                <div class="form-group">
-                    <label>{{translate('LAST_NAME')}}</label>
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-edit fa-fw"></i></span>
-                        <input type="text" class="form-control" name="last_name" autocomplete="off" value="{{user.last_name}}" placeholder="{{translate('LAST_NAME')}}" {% if 'name' in form.fields.disabled %}disabled{% endif %}>
+                        <input type="text" class="form-control" name="name" autocomplete="off" value="{{drone.drone_name}}" placeholder="{{translate('DRONE.NAME_EXPLAIN')}}" {% if 'name' in form.fields.disabled %}disabled{% endif %}>
                     </div>
                 </div>
             </div>
             {% endif %}
-            {% if 'group' not in form.fields.hidden %}
+            {% if 'slug' not in form.fields.hidden %}
+            <div class="col-sm-12">
+                <div class="form-group">
+                    <label>{{translate("SLUG")}}</label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-tag fa-fw"></i></span>
+                        <input type="text" class="form-control" name="slug" autocomplete="off" value="{{drone.drone_slug}}" placeholder="{{translate("DRONE.SLUG_EXPLAIN")}}" {% if 'slug' in form.fields.disabled %}disabled{% endif %} readonly>
+                        {% if 'slug' not in form.fields.disabled %}
+                            <span class="input-group-btn" data-toggle="buttons">
+                                <label class="btn btn-primary">
+                                    <input type="checkbox" id="form-drone-slug-override" autocomplete="off"> {{translate("OVERRIDE")}}
+                                </label>
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if 'fleet' not in form.fields.hidden %}
             <div class="col-sm-6">
                 <div class="form-group">
-                    <label for="input-group">{{translate('FLEET')}}</label>
+                    <label for="input-group">{{translate('DRONE.FLEET')}}</label>
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-users fa-fw"></i></span>
-                        {% if 'group' in form.fields.disabled %}
-                            <input type="text" class="form-control" name="theme" value="{{user.group.name}}" disabled>
+                        {% if 'fleet' in form.fields.disabled %}
+                            <input type="text" class="form-control" name="fleet_name" value="{{fleet.name}}" disabled>
                         {% else %}
-                            <select id="input-group" class="form-control js-select2" name="group_id">
-                                {% for group in groups %}
-                                <option value="{{group.id}}" {% if (group.id == user.group_id) %}selected{% endif %}>{{group.name}}</option>
+                            <select id="input-group" class="form-control js-select2" name="fleet_id">
+                                {% for fleet in fleets %}
+                                    <option value="{{fleet.id}}" {% if (fleet.id == drone.fleet_id) %}selected{% endif %}>{{fleet.name}}</option>
                                 {% endfor %}
                             </select>
                         {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% if 'ipv4' not in form.fields.hidden %}
+            <div class="col-sm-6">
+                <div class="form-group">
+                    <label>{{translate('DRONE.IPV4')}}</label>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-server"></i></span>
+                        <input type="text" class="form-control" name="ipv4" autocomplete="off" value="{{drone.ipv4}}" placeholder="{{translate('DRONE.IPV4_EXPLAIN')}}" {% if 'ipv4' in form.fields.disabled %}disabled{% endif %}>
                     </div>
                 </div>
             </div>

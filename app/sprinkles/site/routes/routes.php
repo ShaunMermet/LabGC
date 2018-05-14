@@ -50,6 +50,26 @@ $app->group('/api/drones', function () {
 
     $this->get('/my', 'UserFrosting\Sprinkle\Site\Controller\SiteController:getMyDroneSprunje');
 
+    //$this->delete('/u/{user_name}', 'UserFrosting\Sprinkle\Admin\Controller\UserController:delete');
+
+    //$this->get('', 'UserFrosting\Sprinkle\Admin\Controller\UserController:getList');
+
+    //$this->get('/u/{user_name}', 'UserFrosting\Sprinkle\Admin\Controller\UserController:getInfo');
+
+    //$this->get('/u/{user_name}/activities', 'UserFrosting\Sprinkle\Admin\Controller\UserController:getActivities');
+
+    //$this->get('/u/{user_name}/roles', 'UserFrosting\Sprinkle\Admin\Controller\UserController:getRoles');
+
+    //$this->get('/u/{user_name}/permissions', 'UserFrosting\Sprinkle\Admin\Controller\UserController:getPermissions');
+
+    $this->post('', 'UserFrosting\Sprinkle\Site\Controller\DroneController:create');
+
+    //$this->post('/u/{user_name}/password-reset', 'UserFrosting\Sprinkle\Admin\Controller\UserController:createPasswordReset');
+
+    $this->put('/d/{drone_slug}', 'UserFrosting\Sprinkle\Site\Controller\DroneController:updateInfo');
+
+    //$this->put('/u/{user_name}/{field}', 'UserFrosting\Sprinkle\Admin\Controller\UserController:updateField');
+
 })->add('authGuard');
 $app->group('/api/droneOperations/{drone_id}', function () {
     
@@ -72,6 +92,10 @@ $app->group('/drones', function () {
 	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\Overrides\CoreController:pageIndex');
 
 })->add('authGuard');
+$app->group('/drone', function () {
+    $this->get('/details/{drone_id}', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageDroneDetails');
+
+})->add('authGuard');
 $app->group('/data', function () {
 	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageData');
 
@@ -82,7 +106,7 @@ $app->group('/modals/drones', function () {
 
     $this->get('/create', 'UserFrosting\Sprinkle\Site\Controller\DroneController:getModalCreate');
 
-    //$this->get('/edit', 'UserFrosting\Sprinkle\Admin\Controller\UserController:getModalEdit');
+    $this->get('/edit', 'UserFrosting\Sprinkle\Site\Controller\DroneController:getModalEdit');
 
     //$this->get('/password', 'UserFrosting\Sprinkle\Admin\Controller\UserController:getModalEditPassword');
 

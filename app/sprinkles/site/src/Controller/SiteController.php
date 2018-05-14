@@ -219,6 +219,44 @@ class SiteController extends SimpleController
     }
 
     /**
+     * Renders the default drone page by drone_id.
+     *
+     * 
+     * Request type: GET
+     */
+    public function pageDroneDetails($request, $response, $args)
+    {
+        /** @var UserFrosting\Sprinkle\Account\Authenticate\Authenticator $authenticator */
+        $authenticator = $this->ci->authenticator;
+        if (!$authenticator->check()) {
+            $loginPage = $this->ci->router->pathFor('login');
+            return $response->withRedirect($loginPage, 400);
+        }
+        if($args){
+            $drone = Drone::with(['fleet'])->where ('id', '=', $args['drone_id'])->first();
+        }else{
+            $drone = new \stdClass();
+            $drone->id= 'all';
+            $drone->drone_name = 'all';
+        }
+        $drone->ipv4b = long2ip($drone->ipv4);
+        error_log("pageDroneDetails");
+        error_log(print_r($drone,true));
+        return $this->ci->view->render($response, 'pages/dronedetails.html.twig', [
+            "page" => [
+                "validators" => [
+                    "register" => 1
+                ],
+                "drone" => [
+                    "id" => $drone->id,
+                    "drone_name" => $drone->drone_name
+                ],
+                "droneO" => $drone
+            ]
+        ]);
+    }
+
+    /**
      * Renders the default home page for Cosmos.
      *
      * By default, this is the page that non-authenticated users will first see when they navigate to your website's root.

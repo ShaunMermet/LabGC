@@ -1,0 +1,115 @@
+{% extends "pages/abstract/default.html.twig" %}
+
+{% block stylesheets_page %}
+{% endblock %}
+
+{% block stylesheets_page_group %}
+  
+{% endblock %}
+
+{% set page_active = "drone details" %}
+
+{# Overrides blocks in head of base template #}
+{% block page_title %}{{translate("DRONE.DETAILS")}}{% endblock %}
+
+{% block page_description %}{{page.droneO.drone_name}}{% endblock %}
+
+{% block content %}
+
+<div class="wrapper">
+
+  <header class="main-header">
+    {% include "navigation/main-nav.html.twig" %}
+  </header>
+
+  <!-- Full Width Column -->
+  <div class="content-wrapper ">
+    <div class="container" style="width:100%;max-width:calc(178vh - 328px);">
+        <!-- Content Header (Page header) -->
+        {% block content_header %}
+        <section class="content-header">
+          <h1>{% block header_title %}{{ block('page_title') }}{% endblock %}</h1>
+          {% if block('page_description') is not empty %}<h1><small>{% block header_description %}{{ block('page_description') }}{% endblock %}</small></h1>{% endif %}
+          {% block breadcrumb %}
+            {% include 'navigation/breadcrumb.html.twig' with {page_title: block('page_title')} %}
+          {% endblock %}
+          <div id="alerts-page"></div>
+        </section>
+        {% endblock %}
+        <section class="content">
+          {% block body_matter %}
+
+    		    <div class="row">
+              <div class="col-md-6">
+                <div class="box box-primary">
+                  <div class="box-header">
+                    <h3 class="box-title pull-left"><i class="fa fa-fw fa-plane"></i> {{page.droneO.drone_name}}</h3>
+                  </div>
+                  <div class="box-body">
+                    <div><b>{{translate('DRONE.NAME', 2)}} : </b>{{page.droneO.drone_name}}</div>
+                    <div><b>{{translate('DRONE.SLUG', 2)}} : </b>{{page.droneO.drone_slug}}</div>
+                    <div><b>{{translate('DRONE.FLEET', 2)}} : </b>{{page.droneO.fleet.name}}</div>
+                    <div><b>{{translate('DRONE.IPV4', 2)}} : </b>{{page.droneO.ipv4b}}</div>
+                  </div>
+                  <div class="box-footer">
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                  <div id="widget-droneOperations" class="box box-primary">
+                      <div class="box-header">
+                          <h3 class="box-title pull-left"><i class="fa fa-fw fa-globe"></i> {{translate('OPERATIONS', 2)}}</h3>
+                          {% include "tables/table-tool-menu.html.twig" %}
+                      </div>
+                      <div class="box-body">
+                          {% include "tables/operations.html.twig" with {
+                                  "table" : {
+                                      "id" : "table-operations",
+                                      "columns" : ["last_activity"]
+                                  }
+                              }
+                          %}
+                      </div>
+                      <div class="box-footer">
+                          <button type="button" class="btn btn-success js-user-create">
+                              <i class="fa fa-plus-square"></i>  {{ translate("OPERATION.CREATE")}}
+                          </button>
+                      </div>
+                  </div>
+              </div>
+    		    </div>
+
+          {% endblock %}
+        </section>
+    </div>
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% block footer %}
+    {% include "pages/partials/footer.html.twig" %}
+  {% endblock %}
+</div>
+<!-- ./wrapper -->
+
+{% endblock %}
+
+
+
+
+
+{% block scripts_page_group %}
+  
+{% endblock %}
+{% block scripts_page %}
+  <!-- Include page-specific variables -->
+    <script>
+        {% include "pages/partials/page.js.twig" %}
+    </script>
+
+    <!-- Include page-specific asset bundles -->
+    {{ assets.js('js/pages/register') | raw }}
+    <!-- Include page-specific JS -->
+    {{ assets.js('js/pages/droneOperations') | raw }}
+
+{% endblock %}

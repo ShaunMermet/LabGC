@@ -54,6 +54,7 @@ class ServicesProvider
             $classMapper->setClassMapping('fleet_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\FleetSprunje');
             
             $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\Site\Database\Models\User');
+            $classMapper->setClassMapping('group', 'UserFrosting\Sprinkle\Site\Database\Models\Group');
             $classMapper->setClassMapping('user_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\UserSprunje');
             $classMapper->setClassMapping('group_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\GroupSprunjeLab');
             return $classMapper;

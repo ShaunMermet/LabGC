@@ -487,5 +487,5 @@ function gmapCenterOnMarker(markerName){
   map.setCenter(markers[markerName+"Marker"].getPosition());
 }
 function gmapDroneDetails(droneId){
-  window.open("operation/drone/"+droneId,'_blank');
+  window.open("drone/details/"+droneId,'_blank');
 }

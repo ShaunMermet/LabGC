@@ -90,7 +90,7 @@ $(document).ready(function() {
 									Janus.log("Plugin attached! (" + streaming.getPlugin() + ", id=" + streaming.getId() + ")");
 									// Setup streaming session
 									$('#update-streams').click(updateStreamsList);
-									createTestStream();
+									//createTestStream();
 									updateStreamsList();
 									$('#start').removeAttr('disabled').html("Stop")
 										.click(function() {
@@ -270,10 +270,14 @@ function createTestStream() {
 		"request" : "create",
 		//"admin_key" : "<plugin administrator key; mandatory if configured>",
 		"type" : "rtp",
-		"id" : 3,
-		"name" : "Name Camera Test",
-		"description" : "Camera Test",
+		"id" : 5,
+		"name" : "Name Camera Test 5",
+		"description" : "Camera Test 5",
 		"video" : true,
+		"videoport" : 9005,
+		"videopt" : 96,
+		"videortpmap" : "H264/90000",
+		"videofmtp" : "profile-level-id=42e028\;packetization-mode=1",
 		"permanent" : false,
 	};
 	Janus.debug("Sending message (" + JSON.stringify(body) + ")");

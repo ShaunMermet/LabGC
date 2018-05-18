@@ -32,7 +32,7 @@ class SiteController extends SimpleController
         //return $this->ci->view->render($response, 'pages/hud.html.twig');
 
         if($args){
-            $drone = Drone::where ('id', '=', $args['drone_id'])->first();
+            $drone = Drone::where ('drone_slug', '=', $args['drone_slug'])->first();
         }else{
             $drone = new \stdClass();
             $drone->id= 'all';

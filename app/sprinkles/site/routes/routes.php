@@ -69,7 +69,7 @@ $app->group('/drones', function () {
 $app->group('/drone', function () {
     $this->get('/details/{drone_id}', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageDroneDetails');
 
-    $this->get('/live/{drone_id}', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageHud');
+    $this->get('/live/{drone_slug}', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageHud');
 
 })->add('authGuard');
 $app->group('/data', function () {
@@ -128,11 +128,13 @@ $app->group('/modals/mountpoints', function () {
 })->add('authGuard');
 $app->group('/api/mountpoints', function () {
     
-    $this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:getDroneSprunje');
+    //$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:getDroneSprunje');
 
     $this->get('/bydroneid/{drone_id}', 'UserFrosting\Sprinkle\Site\Controller\SiteController:getMountpointsByDroneIdSprunje');
 
     $this->delete('/m/{id}', 'UserFrosting\Sprinkle\Site\Controller\MountpointController:delete');
+
+    $this->get('/init/{drone_id}', 'UserFrosting\Sprinkle\Site\Controller\MountpointController:initMountpointsForDrone');
 
     //$this->get('', 'UserFrosting\Sprinkle\Admin\Controller\UserController:getList');
 

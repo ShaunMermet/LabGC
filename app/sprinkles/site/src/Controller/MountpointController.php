@@ -17,6 +17,8 @@ use UserFrosting\Fortress\Adapter\JqueryValidationAdapter;
 use UserFrosting\Fortress\RequestDataTransformer;
 use UserFrosting\Fortress\ServerSideValidator;
 use UserFrosting\Support\Exception\BadRequestException;
+use UserFrosting\Sprinkle\Site\Model\Drone;
+use UserFrosting\Sprinkle\Site\Model\Fleet;
 
 
 /**
@@ -472,5 +474,87 @@ class MountpointController extends SimpleController
         ]);
 
         return $response->withStatus(200);
+    }
+
+    /**
+     * Returns a list of mountpoints for specific drone and update then on janus
+     *
+     * Generates a list of mountpoints.
+     * This page requires authentication.
+     * Request type: GET
+     */
+    public function initMountpointsForDrone($request, $response, $args)
+    {
+        error_log("getMountpointsByDroneIdSprunje");
+        error_log(print_r($params,true));
+        // GET parameters
+        $params = $request->getQueryParams();
+
+        /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager $authorizer */
+        $authorizer = $this->ci->authorizer;
+
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
+        $currentUser = $this->ci->currentUser;
+
+        // Access-controlled page
+        //if (!$authorizer->checkAccess($currentUser, 'uri_users')) {
+        //    throw new ForbiddenException();
+        //}
+
+        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
+        $classMapper = $this->ci->classMapper;
+        error_log("getMountpointsByDroneIdSprunje");
+        error_log(print_r($params,true));
+
+        $UserWGrp = $classMapper->staticMethod('user', 'where', 'id', $currentUser->id)
+                                ->with('group')
+                                ->first();
+
+        $validFleet = [];
+        foreach ($UserWGrp->group as $group) {
+            $fleets = Fleet::where('group_id', '=', $group->id)
+                    ->get();
+            foreach ($fleets as $fleet) {
+                array_push($validFleet, $fleet->id);
+            }
+        }
+
+        $validDrones = [];
+        $drones = Drone::whereIn('fleet_id', $validFleet)
+                    ->get();
+        foreach ($drones as $drone) {
+            array_push($validDrones, $drone->id);
+        }
+
+
+        $chosenDrones = [];
+        if(in_array($args["drone_id"], $validDrones)){
+            $droneID = $args["drone_id"];
+        }else{//No access to this drone
+            return $response->withStatus(400);
+        }
+
+
+        $mountpoints = $classMapper->staticMethod('mountpoint', 'where', 'drone_id', $droneID)
+            ->get();
+
+        error_log("mountpointslist");
+        error_log(print_r($mountpoints,true));
+
+        //filter
+        //$params['filters']['by_ids'] = $chosenDrones;
+
+        //$sprunje = $classMapper->createInstance('mountpoint_sprunje', $classMapper, $params);
+
+        $res = [];
+        $res["result"] = "drone init done";
+        $res["droneid"] = $droneID;
+        $res["list"] = ["stream1", "stream2"];
+
+
+
+        // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
+        // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
+        return $response->withJson($mountpoints, 200, JSON_PRETTY_PRINT);
     }
 }

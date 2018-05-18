@@ -63,6 +63,8 @@ var mainStream = null;
 
 
 $(document).ready(function() {
+	getStreamlistUpdated();
+	return;
 	// Initialize the library (all console debuggers enabled)
 	Janus.init({debug: "all", callback: function() {
 		
@@ -90,7 +92,7 @@ $(document).ready(function() {
 									Janus.log("Plugin attached! (" + streaming.getPlugin() + ", id=" + streaming.getId() + ")");
 									// Setup streaming session
 									$('#update-streams').click(updateStreamsList);
-									//createTestStream();
+									//createteststream();
 									updateStreamsList();
 									$('#start').removeAttr('disabled').html("Stop")
 										.click(function() {
@@ -264,10 +266,61 @@ $(document).ready(function() {
 
 //Test stream
 
-function createTestStream() {
+function getStreamlistUpdated(){
+	//createteststream();
+	droneData = $("#droneStore").data('dronedata');
+	droneId = droneData.id;
+	console.log("request streams of ");
+	console.log(droneData);
+
+	var url = site.uri.public + '/api/mountpoints/init/' +droneId;
+	$.ajax({
+	  type: "GET",
+	  url: url//,
+	  //data: data
+	})
+	.then(
+	    // Fetch successful
+	    function (result) {
+	    	console.log(result);
+	    	//var res = data;
+			//document.getElementById('imgCounter').innerHTML = res['countBySet']+" Image(s) found";
+			//$('#exportButton').show();
+			//$('#exportColumn .stdLoaderButton').hide();
+			if(result["list"] !== undefined && result["list"] !== null) {
+				$('#streams').removeClass('hide').show();
+				$('#streamslist').empty();
+				$('#watch').attr('disabled', true).unbind('click');
+				var list = result["list"];
+				console.log("Got a list of available streams");
+				console.log(list);
+				for(var mp in list) {
+					console.log("  >> [" + list[mp]["id"] + "] " + list[mp]["description"] + " (" + list[mp]["type"] + ")");
+					$('#streamslist').append("<li><a href='#' id='" + list[mp]["id"] + "'>" + list[mp]["description"] + " (" + list[mp]["type"] + ")" + "</a></li>");
+				}
+				$('#streamslist a').unbind('click').click(function() {
+					stopStream();
+					selectedStream = $(this).attr("id");
+					startStream();
+					$('#streamset').html($(this).html()).parent().removeClass('open');
+					return false;
+				});
+				selectedStream = list[0]["id"];
+				$('#watch').removeAttr('disabled').click(startStream);
+				startStream();
+			}
+	    },
+	    // Fetch failed
+	    function (data) {
+	        
+	    }
+	);
+}
+
+function createteststream() {
 	$('#update-streams').unbind('click').addClass('fa-spin');
 	var body = { 
-		"request" : "create",
+		"request" : "info",
 		//"admin_key" : "<plugin administrator key; mandatory if configured>",
 		"type" : "rtp",
 		"id" : 5,
@@ -280,7 +333,7 @@ function createTestStream() {
 		"videofmtp" : "profile-level-id=42e028\;packetization-mode=1",
 		"permanent" : false,
 	};
-	Janus.debug("Sending message (" + JSON.stringify(body) + ")");
+	console.log("Sending message (" + JSON.stringify(body) + ")");
 	streaming.send({"message": body, success: function(result) {
 		console.log("create sucess");
 		console.log(result);
@@ -296,10 +349,10 @@ function createTestStream() {
 			$('#streamslist').empty();
 			$('#watch').attr('disabled', true).unbind('click');
 			var list = result["list"];
-			Janus.log("Got a list of available streams");
-			Janus.debug(list);
+			console.log("Got a list of available streams");
+			console.log(list);
 			for(var mp in list) {
-				Janus.debug("  >> [" + list[mp]["id"] + "] " + list[mp]["description"] + " (" + list[mp]["type"] + ")");
+				console.log("  >> [" + list[mp]["id"] + "] " + list[mp]["description"] + " (" + list[mp]["type"] + ")");
 				$('#streamslist').append("<li><a href='#' id='" + list[mp]["id"] + "'>" + list[mp]["description"] + " (" + list[mp]["type"] + ")" + "</a></li>");
 			}
 			$('#streamslist a').unbind('click').click(function() {

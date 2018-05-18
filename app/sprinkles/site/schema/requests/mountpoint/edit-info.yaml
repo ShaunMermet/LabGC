@@ -1,0 +1,27 @@
+---
+name:
+  validators:
+    required:
+      label: "&NAME"
+      message: VALIDATE.REQUIRED
+    length:
+      label: "&NAME"
+      min: 1
+      max: 255
+      message: VALIDATE.LENGTH_RANGE
+  transformations:
+  - trim
+port:
+  validators:
+    length:
+      label: "&PORT"
+      min: 1
+      max: 5
+      message: VALIDATE.LENGTH_RANGE
+    no_leading_whitespace:
+      label: "&PORT"
+      message: VALIDATE.NO_LEAD_WS
+    no_trailing_whitespace:
+      label: "&PORT"
+      message: VALIDATE.NO_TRAIL_WS
+  transformations:

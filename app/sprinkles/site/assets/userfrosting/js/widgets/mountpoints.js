@@ -5,7 +5,7 @@
 /**
  * Set up the form in a modal after being successfully attached to the body.
  */
-function attachDroneForm() {
+function attachMountpointForm() {
     $("body").on('renderSuccess.ufModal', function (data) {
         var modal = $(this).ufModal('getModal');
         var form = modal.find('.js-form');
@@ -16,7 +16,7 @@ function attachDroneForm() {
         });
 
         // Auto-generate slug
-        form.find('input[name=name]').on('input change', function() {
+        /*form.find('input[name=name]').on('input change', function() {
             var manualSlug = form.find('#form-drone-slug-override').prop('checked');
             if (!manualSlug) {
                 var slug = getSlug($(this).val());
@@ -31,7 +31,7 @@ function attachDroneForm() {
                 form.find('input[name=slug]').prop('readonly', true);
                 form.find('input[name=name]').trigger('change');
             }
-        });
+        });*/
 
         // Set up the form for submission
         form.ufForm({
@@ -46,7 +46,7 @@ function attachDroneForm() {
 /**
  * Link user action buttons, for example in a table or on a specific user's page.
  */
- function bindDroneButtons(el) {
+ function bindMountpointsButtons(el) {
     
     /**
      * Buttons that launch a modal dialog
@@ -57,27 +57,24 @@ function attachDroneForm() {
     /**
      * Direct action buttons
      */
-    el.find('.js-drone-details').click(function() {
-        gmapDroneDetails($(this).data('drone_id'));
-    });
     // Edit general user details button
-    el.find('.js-drone-edit').click(function() {
+    el.find('.js-stream-edit').click(function() {
         $("body").ufModal({
-            sourceUrl: site.uri.public + "/modals/drones/edit",
+            sourceUrl: site.uri.public + "/modals/mountpoints/edit",
             ajaxParams: {
-                drone_slug: $(this).data('drone_slug')
+                id: $(this).data('id')
             },
             msgTarget: $("#alerts-page")
         });
 
-        attachDroneForm();
+        attachMountpointForm();
     });
-    // Delete user button
-    el.find('.js-drone-delete').click(function() {
+    // Delete stream 
+    el.find('.js-stream-delete').click(function() {
         $("body").ufModal({
-            sourceUrl: site.uri.public + "/modals/drones/confirm-delete",
+            sourceUrl: site.uri.public + "/modals/mountpoints/confirm-delete",
             ajaxParams: {
-                drone_slug: $(this).data('drone_slug')
+                id: $(this).data('id')
             },
             msgTarget: $("#alerts-page")
         });
@@ -93,22 +90,19 @@ function attachDroneForm() {
             });
         });
     });
-
-
-    el.find('.js-drone-locate').click(function() {
-        gmapCenterOnMarker($(this).data('drone_slug'));
-    });
-    
 }
 
-function bindDroneCreationButton(el) {
+function bindMountpointCreationButton(el) {
     // Link create button
-    el.find('.js-drone-create').click(function() {
+    el.find('.js-stream-create').click(function() {
         $("body").ufModal({
-            sourceUrl: site.uri.public + "/modals/drones/create",
+            sourceUrl: site.uri.public + "/modals/mountpoints/create",
+            ajaxParams: {
+                drone_id:  $(this).data('droneid')
+            },
             msgTarget: $("#alerts-page")
         });
 
-        attachDroneForm();
+        attachMountpointForm();
     });
 };

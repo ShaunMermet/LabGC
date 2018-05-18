@@ -12,12 +12,12 @@
     <table id="{{table.id}}" class="tablesorter table table-bordered table-hover table-striped" data-sortlist="{{table.sortlist}}">
         <thead>
             <tr>
-                <th class="sorter-metatext" data-column-name="operation_name" data-column-template="#user-table-column-info" data-priority="1">{{translate('OPERATIONS')}} <i class="fa fa-sort"></i></th>
-                <th class="sorter-metatext" data-column-name="drone_id" data-column-template="#user-table-column-drone" data-priority="1">{{translate('DRONE')}} <i class="fa fa-sort"></i></th>
+                <th class="sorter-metatext" data-column-name="operation_name" data-column-template="#operation-table-column-info" data-priority="1">{{translate('OPERATIONS')}} <i class="fa fa-sort"></i></th>
+                <th class="sorter-metatext" data-column-name="drone_id" data-column-template="#operation-table-column-drone" data-priority="1">{{translate('DRONE')}} <i class="fa fa-sort"></i></th>
                 {% if 'last_activity' in table.columns %}
-                    <th class="sorter-metanum" data-column-name="last_activity" data-column-template="#user-table-column-last-activity" data-priority="2">{{translate("ACTIVITY.LAST")}} <i class="fa fa-sort"></i></th>
+                    <th class="sorter-metanum" data-column-name="last_activity" data-column-template="#operation-table-column-last-activity" data-priority="2">{{translate("ACTIVITY.LAST")}} <i class="fa fa-sort"></i></th>
                 {% endif %}
-                <th class="filter-select filter-metatext" data-column-name="status" data-column-template="#user-table-column-actions" data-priority="1">{{translate("STATUS")}}/{{translate("ACTIONS")}} <i class="fa fa-sort"></i></th>
+                <th class="filter-select filter-metatext" data-column-name="status" data-column-template="#operation-table-column-actions" data-priority="1">{{translate("STATUS")}}/{{translate("ACTIONS")}} <i class="fa fa-sort"></i></th>
             </tr>
         </thead>
         <tbody>
@@ -33,7 +33,7 @@
      # These templates require handlebars-helpers.js, moment.js
     #}
     {% verbatim %}
-    <script id="user-table-column-info" type="text/x-handlebars-template">
+    <script id="operation-table-column-info" type="text/x-handlebars-template">
         <td data-text="{{row.operation_name}}" >
             <strong>
                 <a href="{{site.uri.public}}/operation/{{row.id}}">{{row.operation_name}}</a>
@@ -41,7 +41,7 @@
         </td>
     </script>
 
-    <script id="user-table-column-drone" type="text/x-handlebars-template">
+    <script id="operation-table-column-drone" type="text/x-handlebars-template">
         <td data-text="{{row.drone_id}}" >
             <strong>
                 <a href="{{site.uri.public}}/operation/drone/{{row.drone_id}}">{{row.drone_id}}</a>
@@ -49,7 +49,7 @@
         </td>
     </script>
 
-    <script id="user-table-column-last-activity" type="text/x-handlebars-template">
+    <script id="operation-table-column-last-activity" type="text/x-handlebars-template">
         {{#if row.occurred_at }}
         <td data-num="{{dateFormat row.occurred_at format='x'}}">
             {{dateFormat row.occurred_at format="dddd"}}<br>{{dateFormat row.occurred_at format="MMM Do, YYYY h:mm a"}}
@@ -61,7 +61,7 @@
         {{/if }}
     </script>
 
-    <script id="user-table-column-actions" type="text/x-handlebars-template">
+    <script id="operation-table-column-actions" type="text/x-handlebars-template">
         <td
             {{#ifx row.flag_enabled '==' 0 }}
                 data-text="disabled"
@@ -94,12 +94,12 @@
                 {{/ifx }}
                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
                     <li>
-                        <a href="#" data-user_name="{{row.user_name}}" class="js-user-edit">
+                        <a href="#" data-operation_name="{{row.operation_name}}" class="js-operation-edit">
                         <i class="fa fa-edit"></i> {% endverbatim %}{{translate("OPERATION.EDIT")}}{% verbatim %}
                         </a>
                     </li>
                     <li>
-                        <a href="#" data-user_name="{{row.user_name}}" class="js-user-delete">
+                        <a href="#" data-operation_name="{{row.operation_name}}" class="js-operation-delete">
                         <i class="fa fa-trash-o"></i> {% endverbatim %}{{translate("OPERATION.DELETE")}}{% verbatim %}
                         </a>
                     </li>

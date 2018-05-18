@@ -44,5 +44,16 @@ class Drone extends UFModel
         return $this->belongsTo($classMapper->getClassMapping('fleet'), 'fleet_id');
     }
 
+    /**
+     * Get the mountpoints of the drone.
+     */
+    public function mountpoints()
+    {
+        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
+        $classMapper = static::$ci->classMapper;
+        
+        return $this->hasMany($classMapper->getClassMapping('mountpoint'));
+    }
+
 }
 

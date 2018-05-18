@@ -89,17 +89,7 @@
         "js/pages/drones": {
             "scripts": [
                 "local/core/js/drones.js",
-                "local/core/js/widgets/drones.js",
-                "vendor/moment/moment.js",
-                "userfrosting/js/handlebars-helpers.js",
-                "vendor/tablesorter/dist/js/jquery.tablesorter.js",
-                "vendor/tablesorter/dist/js/jquery.tablesorter.widgets.js",
-                "vendor/tablesorter/dist/js/widgets/widget-sort2Hash.min.js",
-                "vendor/tablesorter/dist/js/widgets/widget-columnSelector.min.js",
-                "vendor/tablesorter/dist/js/widgets/widget-reflow.min.js",
-                "vendor/tablesorter/dist/js/widgets/widget-pager.min.js",
-                "userfrosting/js/query-string.js",
-                "userfrosting/js/uf-table.js"
+                "local/core/js/widgets/drones.js"
             ],
             "options": {
                 "result": {
@@ -112,17 +102,20 @@
         "js/pages/droneOperations": {
             "scripts": [
                 "userfrosting/js/widgets/users.js",
-                "local/core/js/droneOperations.js",
-                "vendor/moment/moment.js",
-                "userfrosting/js/handlebars-helpers.js",
-                "vendor/tablesorter/dist/js/jquery.tablesorter.js",
-                "vendor/tablesorter/dist/js/jquery.tablesorter.widgets.js",
-                "vendor/tablesorter/dist/js/widgets/widget-sort2Hash.min.js",
-                "vendor/tablesorter/dist/js/widgets/widget-columnSelector.min.js",
-                "vendor/tablesorter/dist/js/widgets/widget-reflow.min.js",
-                "vendor/tablesorter/dist/js/widgets/widget-pager.min.js",
-                "userfrosting/js/query-string.js",
-                "userfrosting/js/uf-table.js"
+                "local/core/js/droneOperations.js"
+            ],
+            "options": {
+                "result": {
+                    "type": {
+                        "scripts": "plain"
+                    }
+                }
+            }
+        },
+        "js/pages/mountpoints": {
+            "scripts": [
+                "userfrosting/js/pages/mountpoints.js",
+                "userfrosting/js/widgets/mountpoints.js"
             ],
             "options": {
                 "result": {

@@ -26,7 +26,7 @@ use UserFrosting\Support\Exception\BadRequestException;
  * @author Alex Weissman (https://alexanderweissman.com)
  * @see http://www.userfrosting.com/navigating/#structure
  */
-class DroneController extends SimpleController
+class MountpointController extends SimpleController
 {
     /**
      * Renders the modal form for creating a new drone.
@@ -41,6 +41,14 @@ class DroneController extends SimpleController
     {
         // GET parameters
         $params = $request->getQueryParams();
+
+        // Load the request schema
+        $schema = new RequestSchema('schema://requests/mountpoint/create.yaml');
+
+        // Whitelist and set parameter defaults
+        $transformer = new RequestDataTransformer($schema);
+        $data = $transformer->transform($params);
+
 
         /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager $authorizer */
         $authorizer = $this->ci->authorizer;
@@ -72,52 +80,18 @@ class DroneController extends SimpleController
         // Get a list of all locales
         $locales = $config->getDefined('site.locales.available');
 
-        // Determine if currentUser has permission to modify the group.  If so, show the 'group' dropdown.
-        // Otherwise, set to the currentUser's group and disable the dropdown.
-    //    if ($authorizer->checkAccess($currentUser, 'create_drone_field', [
-    //        'fields' => ['group']
-    //    ])) {
-            // Get a list of all groups
-    //        $groups = $classMapper->staticMethod('group', 'all');
-    //    } else {
-            // Get the current user's group
-    //        $groups = $currentUser->group()->get();
-    //        $fields['disabled'][] = 'group';
-    //    }
-
-        // Create a dummy drone to prepopulate fields
-        $data = [
-            //'group_id' => $currentUser->group_id,
-            //'locale'   => $config['site.registration.user_defaults.locale'],
-            //'theme'    => ''
-        ];
-
-        $drone = $classMapper->createInstance('drone', $data);
-
-        // Get the current user's group/groups
-        $fleets = [];
-        $groups = $currentUser->group()->get();
-        foreach ($groups as $group) {
-            $groupfleets = $group->fleets()->get();
-            foreach ($groupfleets as $fleet) {
-                array_push($fleets, $fleet);
-            }
-        }
+        $mountpoint = $classMapper->createInstance('mountpoint', $data);
         
 
-        // Get the current user's fleet
-        //$fleets = $currentUser->fleet()->get();
-
         // Load validation rules
-        $schema = new RequestSchema('schema://requests/drone/create.yaml');
+        $schema = new RequestSchema('schema://requests/mountpoint/create.yaml');
         $validator = new JqueryValidationAdapter($schema, $this->ci->translator);
 
-        return $this->ci->view->render($response, 'modals/drone.html.twig', [
-            'drone' => $drone,
-            'fleets' => $fleets,
+        return $this->ci->view->render($response, 'modals/mountpoint.html.twig', [
+            'mountpoint' => $mountpoint,
             'locales' => $locales,
             'form' => [
-                'action' => 'api/drones',
+                'action' => 'api/mountpoints',//trigger create function
                 'method' => 'POST',
                 'fields' => $fields,
                 'submit_text' => $translator->translate('CREATE')
@@ -159,7 +133,7 @@ class DroneController extends SimpleController
         $ms = $this->ci->alerts;
 
         // Load the request schema
-        $schema = new RequestSchema('schema://requests/drone/create.yaml');
+        $schema = new RequestSchema('schema://requests/mountpoint/create.yaml');
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -167,6 +141,7 @@ class DroneController extends SimpleController
 
         $error = false;
 
+        
         // Validate request data
         $validator = new ServerSideValidator($schema, $this->ci->translator);
         if (!$validator->validate($data)) {
@@ -177,28 +152,9 @@ class DroneController extends SimpleController
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
 
-        // Check if name or slug already exists
-        if ($classMapper->staticMethod('drone', 'where', 'drone_name', $data['name'])->first()) {
-            $ms->addMessageTranslated('danger', 'DRONE.NAME.IN_USE', $data);
-            $error = true;
-        }
-
-        if ($classMapper->staticMethod('drone', 'where', 'drone_slug', $data['slug'])->first()) {
-            $ms->addMessageTranslated('danger', 'GROUP.SLUG.IN_USE', $data);
-            $error = true;
-        }
-
         if ($error) {
             return $response->withStatus(400);
         }
-
-        $data["drone_name"] = $data["name"];
-        $data["drone_slug"] = $data["slug"];
-        $data["ipv4"] = ip2long($data["ipv4"]);
-        unset($data["name"]);
-        unset($data["slug"]);
-        
-        //return $response->withStatus(200);;
 
         /** @var UserFrosting\Config\Config $config */
         $config = $this->ci->config;
@@ -207,18 +163,18 @@ class DroneController extends SimpleController
         // Begin transaction - DB will be rolled back if an exception occurs
         Capsule::transaction( function() use ($classMapper, $data, $ms, $config, $currentUser) {
             // Create the group
-            $drone = $classMapper->createInstance('drone', $data);
+            $mountpoint = $classMapper->createInstance('mountpoint', $data);
 
-            // Store new group to database
-            $drone->save();
+            // Store new mountpoint to database
+            $mountpoint->save();
 
             // Create activity record
-            $this->ci->userActivityLogger->info("User {$currentUser->user_name} created drone {$drone->name}.", [
-                'type' => 'drone_create',
+            $this->ci->userActivityLogger->info("User {$currentUser->user_name} created mountpoint {$mountpoint->name}.", [
+                'type' => 'mountpoint_create',
                 'user_id' => $currentUser->id
             ]);
 
-            $ms->addMessageTranslated('success', 'DRONE.CREATION_SUCCESSFUL', $data);
+            $ms->addMessageTranslated('success', 'MOUNTPOINT.CREATION_SUCCESSFUL', $data);
         });
 
         return $response->withStatus(200);
@@ -236,10 +192,10 @@ class DroneController extends SimpleController
         // GET parameters
         $params = $request->getQueryParams();
 
-        $drone = $this->getDroneFromParams($params);
+        $mountpoint = $this->getMountpointFromParams($params);
 
         // If the group doesn't exist, return 404
-        if (!$drone) {
+        if (!$mountpoint) {
             throw new NotFoundException($request, $response);
         }
 
@@ -271,24 +227,15 @@ class DroneController extends SimpleController
         ];
 
         // Load validation rules
-        $schema = new RequestSchema('schema://requests/drone/edit-info.yaml');
+        $schema = new RequestSchema('schema://requests/mountpoint/edit-info.yaml');
         $validator = new JqueryValidationAdapter($schema, $translator);
 
-        // Get the current user's group/groups
-        $fleets = [];
-        $groups = $currentUser->group()->get();
-        foreach ($groups as $group) {
-            $groupfleets = $group->fleets()->get();
-            foreach ($groupfleets as $fleet) {
-                array_push($fleets, $fleet);
-            }
-        }
 
-        return $this->ci->view->render($response, 'modals/drone.html.twig', [
-            'drone' => $drone,
-            'fleets' => $fleets,
+        return $this->ci->view->render($response, 'modals/mountpoint.html.twig', [
+            'mountpoint' => $mountpoint,
+            //'fleets' => $fleets,
             'form' => [
-                'action' => "api/drones/d/{$drone->drone_slug}",
+                'action' => "api/mountpoints/m/{$mountpoint->id}",//Trigger updateInfo
                 'method' => 'PUT',
                 'fields' => $fields,
                 'submit_text' => $translator->translate('UPDATE')
@@ -299,11 +246,10 @@ class DroneController extends SimpleController
         ]);
     }
 
-    protected function getDroneFromParams($params)
+    protected function getMountpointFromParams($params)
     {
-        $params["slug"] = $params["drone_slug"];
         // Load the request schema
-        $schema = new RequestSchema('schema://requests/drone/get-by-slug.yaml');
+        $schema = new RequestSchema('schema://requests/mountpoint/get-by-id.yaml');
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -325,11 +271,10 @@ class DroneController extends SimpleController
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
 
-        // Get the group
-        $drone = $classMapper->staticMethod('drone', 'where', 'drone_slug', $data['slug'])
+        // Get the mountpoint
+        $mountpoint = $classMapper->staticMethod('mountpoint', 'where', 'id', $data['id'])
             ->first();
-        $drone->ipv4 = long2ip($drone->ipv4);
-        return $drone;
+        return $mountpoint;
     }
 
     /**
@@ -346,9 +291,9 @@ class DroneController extends SimpleController
     public function updateInfo($request, $response, $args)
     {
         // Get the group based on slug in URL
-        $drone = $this->getDroneFromParams($args);
+        $mountpoint = $this->getMountpointFromParams($args);
 
-        if (!$drone) {
+        if (!$mountpoint) {
             throw new NotFoundException($request, $response);
         }
 
@@ -362,7 +307,7 @@ class DroneController extends SimpleController
         $ms = $this->ci->alerts;
 
         // Load the request schema
-        $schema = new RequestSchema('schema://requests/drone/edit-info.yaml');
+        $schema = new RequestSchema('schema://requests/mountpoint/edit-info.yaml');
 
         // Whitelist and set parameter defaults
         $transformer = new RequestDataTransformer($schema);
@@ -400,71 +345,41 @@ class DroneController extends SimpleController
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
 
-        // Check if name or slug already exists
-        if (
-            isset($data['name']) &&
-            $data['name'] != $group->name &&
-            $classMapper->staticMethod('drone', 'where', 'drone_name', $data['name'])->first()
-        ) {
-            $ms->addMessageTranslated('danger', 'DRONE.NAME.IN_USE', $data);
-            $error = true;
-        }
-
-        if (
-            isset($data['slug']) &&
-            $data['slug'] != $group->slug &&
-            $classMapper->staticMethod('drone', 'where', 'drone_slug', $data['slug'])->first()
-        ) {
-            $ms->addMessageTranslated('danger', 'DRONE.SLUG.IN_USE', $data);
-            $error = true;
-        }
-
-        if ($error) {
-            return $response->withStatus(400);
-        }
-
-        $data["drone_name"] = $data["name"];
-        $data["drone_slug"] = $data["slug"];
-        $data["ipv4"] = ip2long($data["ipv4"]);
-        unset($data["name"]);
-        unset($data["slug"]);
-        error_log("updateInfo data");
-        error_log(print_r($data,true));
-
         // Begin transaction - DB will be rolled back if an exception occurs
-        Capsule::transaction( function() use ($data, $drone, $currentUser) {
+        Capsule::transaction( function() use ($data, $mountpoint, $currentUser) {
             // Update the group and generate success messages
             foreach ($data as $name => $value) {
-                if ($value != $drone->$name) {
-                    $drone->$name = $value;
+                if ($value != $mountpoint->$name) {
+                    $mountpoint->$name = $value;
                 }
             }
 
-            $drone->save();
+            $mountpoint->save();
 
             // Create activity record
-            $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated details for drone {$drone->drone_name}.", [
-                'type' => 'drone_update_info',
+            $this->ci->userActivityLogger->info("User {$currentUser->user_name} updated details for mountpoint {$mountpoint->name}.", [
+                'type' => 'mountpoint_update_info',
                 'user_id' => $currentUser->id
             ]);
         });
 
-        $ms->addMessageTranslated('success', 'DRONE.UPDATE', [
-            'name' => $drone->drone_name
+        $ms->addMessageTranslated('success', 'MOUNTPOINT.UPDATE', [
+            'name' => $mountpoint->name
         ]);
 
         return $response->withStatus(200);
     }
+
 
     public function getModalConfirmDelete($request, $response, $args)
     {
         // GET parameters
         $params = $request->getQueryParams();
 
-        $drone = $this->getDroneFromParams($params);
+        $mountpoint = $this->getMountpointFromParams($params);
 
         // If the group no longer exists, forward to main group listing page
-        if (!$drone) {
+        if (!$mountpoint) {
             throw new NotFoundException($request, $response);
         }
 
@@ -484,32 +399,29 @@ class DroneController extends SimpleController
         /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
         $classMapper = $this->ci->classMapper;
 
-        return $this->ci->view->render($response, 'modals/confirm-delete-drone.html.twig', [
-            'drone' => $drone,
+        return $this->ci->view->render($response, 'modals/confirm-delete-mountpoint.html.twig', [
+            'mountpoint' => $mountpoint,
             'form' => [
-                'action' => "api/drones/d/{$drone->drone_slug}",//trigger delete
+                'action' => "api/mountpoints/m/{$mountpoint->id}",//trigger delete
             ]
         ]);
     }
 
-
     /**
-     * Processes the request to delete an existing drone.
+     * Processes the request to delete an existing stream/mountpoint.
      *
-     * Deletes the specified drone.
+     * Deletes the specified stream, removing any existing associations.
      * Before doing so, checks that:
-     * 1. The user has permission to delete this drone;
-     * 2. Delete the streams
-     * 3. The submitted data is valid.
-     * This route requires authentication 
+     * 1. You have permission to delete the target user's account.
+     * This route requires authentication
      * Request type: DELETE
      */
     public function delete($request, $response, $args)
     {
-        $drone = $this->getDroneFromParams($args);
+        $mountpoint = $this->getMountpointFromParams($args);
 
-        // If the drone doesn't exist, return 404
-        if (!$drone) {
+        // If the mountpoint doesn't exist, return 404
+        if (!$mountpoint) {
             throw new NotFoundException($request, $response);
         }
 
@@ -520,8 +432,8 @@ class DroneController extends SimpleController
         $currentUser = $this->ci->currentUser;
 
         // Access-controlled page
-        /*if (!$authorizer->checkAccess($currentUser, 'delete_group', [
-            'group' => $group
+        /*if (!$authorizer->checkAccess($currentUser, 'delete_user', [
+            'user' => $user
         ])) {
             throw new ForbiddenException();
         }*/
@@ -529,35 +441,25 @@ class DroneController extends SimpleController
         /** @var UserFrosting\Config\Config $config */
         $config = $this->ci->config;
 
-        // Check that we are not deleting the default group
+        // Check that we are not deleting the master account
         // Need to use loose comparison for now, because some DBs return `id` as a string
-        /*if ($group->slug == $config['site.registration.user_defaults.group']) {
+        if ($user->id == $config['reserved_user_ids.master']) {
             $e = new BadRequestException();
-            $e->addUserMessage('GROUP.DELETE_DEFAULT', $group->toArray());
+            $e->addUserMessage('DELETE_MASTER');
             throw $e;
-        }*/
+        }
 
-        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
-        $classMapper = $this->ci->classMapper;
-
-        // Check if there are any mountpoint for this drone and delete them
-        $mountpoints = $classMapper->staticMethod('mountpoint', 'where', 'drone_id', $drone->id)->get();
-        
-        $droneName = $drone->drone_name;
+        $mountpointName = $mountpoint->name;
+        $mountpointId = $mountpoint->id;
 
         // Begin transaction - DB will be rolled back if an exception occurs
-        Capsule::transaction( function() use ($drone, $droneName, $mountpoints, $currentUser) {
-            foreach ($mountpoints as $mountpoint) {
-                $mountpoint->delete();
-                unset($mountpoint);
-            }
-            $drone->delete();
-            unset($drone);
-            
+        Capsule::transaction( function() use ($mountpoint, $mountpointName, $mountpointId, $currentUser) {
+            $mountpoint->delete();
+            unset($mountpoint);
 
             // Create activity record
-            $this->ci->userActivityLogger->info("User {$currentUser->user_name} deleted drone {$droneName}.", [
-                'type' => 'drone_delete',
+            $this->ci->userActivityLogger->info("User {$currentUser->user_name} deleted the mountpoint for {$mountpointName} {$mountpointId}.", [
+                'type' => 'mountpoint_delete',
                 'user_id' => $currentUser->id
             ]);
         });
@@ -565,8 +467,8 @@ class DroneController extends SimpleController
         /** @var UserFrosting\Sprinkle\Core\MessageStream $ms */
         $ms = $this->ci->alerts;
 
-        $ms->addMessageTranslated('success', 'DRONE.DELETION_SUCCESSFUL', [
-            'name' => $droneName
+        $ms->addMessageTranslated('success', 'MOUNTPOINT.DELETION_SUCCESSFUL', [
+            'mountpoint_name' => $mountpointName
         ]);
 
         return $response->withStatus(200);

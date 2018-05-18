@@ -52,6 +52,8 @@ class ServicesProvider
             $classMapper->setClassMapping('operation_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\OperationSprunje');
             $classMapper->setClassMapping('fleet', 'UserFrosting\Sprinkle\Site\Model\Fleet');
             $classMapper->setClassMapping('fleet_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\FleetSprunje');
+            $classMapper->setClassMapping('mountpoint', 'UserFrosting\Sprinkle\Site\Model\Mountpoint');
+            $classMapper->setClassMapping('mountpoint_sprunje', 'UserFrosting\Sprinkle\Site\Sprunje\MountpointSprunje');
             
             $classMapper->setClassMapping('user', 'UserFrosting\Sprinkle\Site\Database\Models\User');
             $classMapper->setClassMapping('group', 'UserFrosting\Sprinkle\Site\Database\Models\Group');

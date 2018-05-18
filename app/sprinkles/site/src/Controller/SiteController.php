@@ -140,6 +140,65 @@ class SiteController extends SimpleController
         return $sprunje->toResponse($response);
     }
 
+    /**
+     * Returns a sprunje of mountpoints for specific drone
+     *
+     * Generates a list of drones, optionally paginated, sorted and/or filtered.
+     * This page requires authentication.
+     * Request type: GET
+     */
+    public function getMountpointsByDroneIdSprunje($request, $response, $args)
+    {
+        // GET parameters
+        $params = $request->getQueryParams();
+
+        /** @var UserFrosting\Sprinkle\Account\Authorize\AuthorizationManager $authorizer */
+        $authorizer = $this->ci->authorizer;
+
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
+        $currentUser = $this->ci->currentUser;
+
+        // Access-controlled page
+        //if (!$authorizer->checkAccess($currentUser, 'uri_users')) {
+        //    throw new ForbiddenException();
+        //}
+
+        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
+        $classMapper = $this->ci->classMapper;
+
+        $UserWGrp = $classMapper->staticMethod('user', 'where', 'id', $currentUser->id)
+                                ->with('group')
+                                ->first();
+
+        $validFleet = [];
+        foreach ($UserWGrp->group as $group) {
+            $fleets = Fleet::where('group_id', '=', $group->id)
+                    ->get();
+            foreach ($fleets as $fleet) {
+                array_push($validFleet, $fleet->id);
+            }
+        }
+
+        $validDrones = [];
+        $drones = Drone::whereIn('fleet_id', $validFleet)
+                    ->get();
+        foreach ($drones as $drone) {
+            array_push($validDrones, $drone->id);
+        }
+        $chosenDrones = [];
+        if(in_array($args["drone_id"], $validDrones)){
+            array_push($chosenDrones, $args["drone_id"]);
+        }
+        //filter
+        $params['filters']['by_ids'] = $chosenDrones;
+
+        $sprunje = $classMapper->createInstance('mountpoint_sprunje', $classMapper, $params);
+
+        // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
+        // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
+        return $sprunje->toResponse($response);
+    }
+
 
      /**
      * Renders the default operation page for labGC.
@@ -188,9 +247,6 @@ class SiteController extends SimpleController
     {
         // GET parameters
         $params = $request->getQueryParams();
-        error_log("operationbydrone");
-        error_log(print_r($params,true));
-        error_log(print_r($args,true));
         if($args['drone_id'] == 'all'){
             //no filter
         }
@@ -232,16 +288,53 @@ class SiteController extends SimpleController
             $loginPage = $this->ci->router->pathFor('login');
             return $response->withRedirect($loginPage, 400);
         }
-        if($args){
-            $drone = Drone::with(['fleet'])->where ('id', '=', $args['drone_id'])->first();
-        }else{
-            $drone = new \stdClass();
-            $drone->id= 'all';
-            $drone->drone_name = 'all';
+
+        /** @var UserFrosting\Sprinkle\Account\Database\Models\User $currentUser */
+        $currentUser = $this->ci->currentUser;
+
+        /** @var UserFrosting\Sprinkle\Core\Util\ClassMapper $classMapper */
+        $classMapper = $this->ci->classMapper;
+
+        $UserWGrp = $classMapper->staticMethod('user', 'where', 'id', $currentUser->id)
+                                ->with('group')
+                                ->first();
+
+        $validFleet = [];
+        foreach ($UserWGrp->group as $group) {
+            $fleets = Fleet::where('group_id', '=', $group->id)
+                    ->get();
+            foreach ($fleets as $fleet) {
+                array_push($validFleet, $fleet->id);
+            }
         }
-        $drone->ipv4b = long2ip($drone->ipv4);
+
+        $validDrones = [];
+        $drones = Drone::whereIn('fleet_id', $validFleet)
+                    ->get();
+        foreach ($drones as $drone) {
+            array_push($validDrones, $drone->id);
+        }
         error_log("pageDroneDetails");
-        error_log(print_r($drone,true));
+        error_log(print_r($validDrones,true));
+        error_log(print_r($args,true));
+
+        if(!in_array($args["drone_id"], $validDrones)){
+            $drone=new \stdClass();
+            $drone->id = $args["drone_id"];
+            $drone->drone_name = "Not available";
+        }
+        else{
+            if($args){
+                $drone = Drone::with(['fleet'])->with(['mountpoints'])->where ('id', '=', $args['drone_id'])->first();
+            }else{
+                $drone = new \stdClass();
+                $drone->id= 'all';
+                $drone->drone_name = 'all';
+            }
+            $drone->ipv4b = long2ip($drone->ipv4);
+            error_log("pageDroneDetails");
+            error_log(print_r($drone,true));
+        }
         return $this->ci->view->render($response, 'pages/dronedetails.html.twig', [
             "page" => [
                 "validators" => [

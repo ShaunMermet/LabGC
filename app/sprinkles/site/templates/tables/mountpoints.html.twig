@@ -11,12 +11,9 @@
     <table id="{{table.id}}" class="tablesorter table table-bordered table-hover table-striped" data-sortlist="{{table.sortlist}}">
         <thead>
             <tr>
-                <th class="sorter-metatext" data-column-name="drone_name" data-column-template="#user-table-column-info" data-priority="1">{{translate('DRONES')}} <i class="fa fa-sort"></i></th>
-                <!--<th class="filter-select filter-metatext" data-column-name="drone_name" data-column-template="#user-table-column-locate" data-priority="1" data-sorter="false" data-filter="false">{{translate("LOCATE")}}<i class="fa fa-sort"></i></th>-->
-                {% if 'last_activity' in table.columns %}
-                    <th class="sorter-metanum" data-column-name="last_activity" data-column-template="#user-table-column-last-activity" data-priority="2">{{translate("ACTIVITY.LAST")}} <i class="fa fa-sort"></i></th>
-                {% endif %}
-                <th data-column-name="actions" data-column-template="#user-table-column-actions" data-sorter="false" data-filter="false" data-priority="1">{{translate("ACTIONS")}}</th>
+                <th class="sorter-metatext" data-column-name="name" data-column-template="#mountpoint-table-column-name" data-priority="1">{{translate('STREAM.NAME')}} <i class="fa fa-sort"></i></th>
+                <th class="sorter-metatext" data-column-name="port" data-column-template="#mountpoint-table-column-port" data-priority="2">{{translate("STREAM.PORT")}} <i class="fa fa-sort"></i></th>
+                <th data-column-name="actions" data-column-template="#mountpoint-table-column-actions" data-sorter="false" data-filter="false" data-priority="1">{{translate("ACTIONS")}}</th>
             </tr>
         </thead>
         <tbody>
@@ -32,40 +29,38 @@
      # These templates require handlebars-helpers.js, moment.js
     #}
     {% verbatim %}
-    <script id="user-table-column-info" type="text/x-handlebars-template">
-        <td data-text="{{row.drone_name}}" >
-            <div id="{{row.drone_slug}}" onmouseover="{{row.drone_slug}}hover()" onmouseout="{{row.drone_slug}}out()">
+    <script id="mountpoint-table-column-name" type="text/x-handlebars-template">
+        <td data-text="{{row.name}}" >
+            <div id="{{row.name}}">
                 <strong>
-                    <a href="#" data-drone_slug="{{row.drone_slug}}" class="js-drone-locate">{{row.drone_name}}</a>
+                    <a href="#" data-name="{{row.name}}" class="js-drone-locate">{{row.name}}</a>
                 </strong>
             </div>
         </td>
     </script>
 
-    <!--<script id="user-table-column-locate" type="text/x-handlebars-template">
-        <td data-text="{{row.drone_slug}}" >
-            <div class="btn-group">
-                <button type="button" class="btn btn-default js-drone-locate" data-drone_slug="{{row.drone_slug}}">
-                    <i class="fa fa-bullseye"></i>{% endverbatim %}  {{ translate("")}}{% verbatim %}
-                </button>
+    <script id="mountpoint-table-column-port" type="text/x-handlebars-template">
+        <td data-text="{{row.port}}" >
+            <div id="{{row.port}}">
+                <strong>
+                    <a href="#" data-port="{{row.port}}" class="js-drone-locate">{{row.port}}</a>
+                </strong>
             </div>
         </td>
-    </script>-->
-
-    <script id="user-table-column-last-activity" type="text/x-handlebars-template">
-        {{#if row.occurred_at }}
-        <td data-num="{{dateFormat row.occurred_at format='x'}}">
-            {{dateFormat row.occurred_at format="dddd"}}<br>{{dateFormat row.occurred_at format="MMM Do, YYYY h:mm a"}}
-        </td>
-        {{ else }}
-        <td data-num="0">
-                <i>{% endverbatim %}{{translate("UNKNOWN")}}{% verbatim %}</i>
-        </td>
-        {{/if }}
     </script>
 
-    <script id="user-table-column-actions" type="text/x-handlebars-template">
-        <td>
+    <script id="mountpoint-table-column-actions" type="text/x-handlebars-template">
+        <td
+            {{#ifx row.flag_enabled '==' 0 }}
+                data-text="disabled"
+            {{ else }}
+                {{#ifx row.flag_verified '==' 0 }}
+                    data-text="unactivated"
+                {{ else }}
+                    data-text="active"
+                {{/ifx }}
+            {{/ifx }}
+        >
             <div class="btn-group">
                 <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                     {% endverbatim %}{{translate("ACTIONS")}}{% verbatim %}
@@ -73,18 +68,13 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-right" role="menu">
                     <li>
-                        <a href="#" data-drone_id="{{row.id}}" class="js-drone-details">
-                            <i class="fa fa-info-circle"></i> {% endverbatim %}{{translate("DRONE.DETAILS")}}{% verbatim %}
+                        <a href="#" data-id="{{row.id}}" class="js-stream-edit">
+                        <i class="fa fa-edit"></i> {% endverbatim %}{{translate("STREAM.EDIT")}}{% verbatim %}
                         </a>
                     </li>
                     <li>
-                        <a href="#" data-drone_slug="{{row.drone_slug}}" class="js-drone-edit">
-                        <i class="fa fa-edit"></i> {% endverbatim %}{{translate("DRONE.EDIT")}}{% verbatim %}
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" data-drone_slug="{{row.drone_slug}}" class="js-drone-delete">
-                        <i class="fa fa-trash-o"></i> {% endverbatim %}{{translate("DRONE.DELETE")}}{% verbatim %}
+                        <a href="#" data-id="{{row.id}}" class="js-stream-delete">
+                        <i class="fa fa-trash-o"></i> {% endverbatim %}{{translate("STREAM.DELETE")}}{% verbatim %}
                         </a>
                     </li>
                     

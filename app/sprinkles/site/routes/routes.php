@@ -31,7 +31,7 @@ $app->group('/operation/drone/all', function () {
 
 })->add('authGuard');
 $app->group('/operation/{operation_id}', function () {
-	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageHud');
+	$this->get('', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageHudOperation');
 
 })->add('authGuard');
 $app->group('/VR', function () {
@@ -68,6 +68,8 @@ $app->group('/drones', function () {
 })->add('authGuard');
 $app->group('/drone', function () {
     $this->get('/details/{drone_id}', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageDroneDetails');
+
+    $this->get('/live/{drone_id}', 'UserFrosting\Sprinkle\Site\Controller\SiteController:pageHud');
 
 })->add('authGuard');
 $app->group('/data', function () {

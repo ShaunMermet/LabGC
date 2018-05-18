@@ -323,6 +323,8 @@ function createTestStream() {
 
 
 function updateStreamsList() {
+	console.log("request drone");
+	console.log($("#droneStore").data('dronedata'));
 	$('#update-streams').unbind('click').addClass('fa-spin');
 	var body = { "request": "list" };
 	Janus.debug("Sending message (" + JSON.stringify(body) + ")");

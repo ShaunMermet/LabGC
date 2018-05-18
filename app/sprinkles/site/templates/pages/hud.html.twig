@@ -15,7 +15,7 @@
 {# Overrides blocks in head of base template #}
 {% block page_title %}{{translate("HUD")}}{% endblock %}
 
-{% block page_description %}{% endblock %}
+{% block page_description %}{{page.drone.drone_name}}{% endblock %}
 
 {% block content %}
 
@@ -31,8 +31,8 @@
         <!-- Content Header (Page header) -->
         {% block content_header %}
         <section class="content-header">
-          <h1>{% block header_title %}{{ block('page_title') }}{% endblock %}</h1>
-          {% if block('page_description') is not empty %}<h1><small>{% block header_description %}{{ block('page_description') }}{% endblock %}</small></h1>{% endif %}
+          <h1>{% block header_title %}{{ block('page_title') }}{% endblock %}{% if block('page_description') is not empty %}<small id="droneStore" data-droneData="{{page.drone}}">{% block header_description %}{{ block('page_description') }}{% endblock %}</small>{% endif %}</h1>
+          
           {% block breadcrumb %}
             {% include 'navigation/breadcrumb.html.twig' with {page_title: block('page_title')} %}
           {% endblock %}

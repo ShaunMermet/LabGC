@@ -124,6 +124,18 @@
                     }
                 }
             }
+        },
+        "js/pages/dronedetails": {
+            "scripts": [
+                "userfrosting/js/pages/dronedetails.js"
+            ],
+            "options": {
+                "result": {
+                    "type": {
+                        "scripts": "plain"
+                    }
+                }
+            }
         }
     }
 }

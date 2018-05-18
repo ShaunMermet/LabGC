@@ -29,7 +29,23 @@ class SiteController extends SimpleController
             $loginPage = $this->ci->router->pathFor('login');
             return $response->withRedirect($loginPage, 400);
         }
-        return $this->ci->view->render($response, 'pages/hud.html.twig');
+        //return $this->ci->view->render($response, 'pages/hud.html.twig');
+
+        if($args){
+            $drone = Drone::where ('id', '=', $args['drone_id'])->first();
+        }else{
+            $drone = new \stdClass();
+            $drone->id= 'all';
+            $drone->drone_name = 'all';
+        }
+        return $this->ci->view->render($response, 'pages/hud.html.twig', [
+            "page" => [
+                "validators" => [
+                    "register" => 1
+                ],
+                "drone" => $drone
+            ]
+        ]);
     }
 
     /**

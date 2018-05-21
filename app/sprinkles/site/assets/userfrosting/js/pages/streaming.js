@@ -63,8 +63,6 @@ var mainStream = null;
 
 
 $(document).ready(function() {
-	getStreamlistUpdated();
-	return;
 	// Initialize the library (all console debuggers enabled)
 	Janus.init({debug: "all", callback: function() {
 		
@@ -93,7 +91,8 @@ $(document).ready(function() {
 									// Setup streaming session
 									$('#update-streams').click(updateStreamsList);
 									//createteststream();
-									updateStreamsList();
+									//updateStreamsList();
+									getStreamlistUpdated();
 									$('#start').removeAttr('disabled').html("Stop")
 										.click(function() {
 											$(this).attr('disabled', true);
@@ -267,7 +266,6 @@ $(document).ready(function() {
 //Test stream
 
 function getStreamlistUpdated(){
-	//createteststream();
 	droneData = $("#droneStore").data('dronedata');
 	droneId = droneData.id;
 	console.log("request streams of ");

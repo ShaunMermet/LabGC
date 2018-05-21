@@ -549,12 +549,134 @@ class MountpointController extends SimpleController
         $res = [];
         $res["result"] = "drone init done";
         $res["droneid"] = $droneID;
-        $res["list"] = ["stream1", "stream2"];
+        $res["list"] = $mountpoints->toArray();
 
+        error_log("bdd result");
+        error_log(print_r($res,true));
+        //Create janus session
+        //Own adress
+        //$baseUrl = "http://$_SERVER[HTTP_HOST]";
+        $baseUrl = "http://192.168.1.170:8088/janus";
+        $transaction = "1234567890";
+        $data = array('janus' => 'create', 'transaction' => $transaction);
+        $responseData = $this->sendJanusPost($baseUrl, $data);
+        $sessionID = $responseData["data"]["id"];
+    
+        //create plugin handle on session endpoint
+        $url = $baseUrl."/".$sessionID;
+        $transaction = "1234567890";
+        $plugin = "janus.plugin.streaming";
+        $data = array('janus' => 'attach','plugin' => $plugin, 'transaction' => $transaction);
+        $responseData = $this->sendJanusPost($url, $data);
+        $handleID = $responseData["data"]["id"];
+        
+        
+
+        foreach ($res["list"] as $bddMP) {//id drone_id name port
+            //handle interaction - get info on mountpoint.
+            $url = $baseUrl."/".$sessionID."/".$handleID;
+            $transaction = "1234567890";
+            $body = new \stdClass();
+            $body->request = 'info';
+            $body->id = $bddMP['id'];
+            $body->secret = "123";
+            $data = array('janus' => 'message','body' => $body, 'transaction' => $transaction);
+            $responseData = $this->sendJanusPost($url, $data);
+            $responseMessage = $responseData["plugindata"]["data"];
+            error_log("http post info");
+            error_log(print_r($url,true));
+            error_log(print_r($responseData,true));
+                
+            if(array_key_exists("error_code",$responseMessage)){//check if mountpoint does exist
+                //Got error
+
+                if($responseMessage["error_code"] == 455){//mountpoint doesn't exist
+                    error_log("create mountpoint");
+                    $url = $baseUrl."/".$sessionID."/".$handleID;
+                    $transaction = "1234567890";
+                    $body = new \stdClass();
+                    $body->request = 'create';
+                    $body->id = $bddMP['id'];
+                    //$body->secret = "123";
+                    $body->type = "rtp";
+                    $body->name = "name ".$bddMP['name'];
+                    $body->description = $bddMP['name'];
+                    $body->video = true;
+                    $body->videoport = $bddMP['port'];
+                    $body->videopt = 96;
+                    $body->videortpmap = "H264/90000";
+                    $body->videofmtp = "profile-level-id=42e028\;packetization-mode=1";
+                    $body->secret = "123";
+                    $body->permanent = false;
+                    $data = array('janus' => 'message','body' => $body, 'transaction' => $transaction);
+                    $responseData = $this->sendJanusPost($url, $data);
+                    error_log("http post created");
+                    error_log(print_r($responseData,true));
+                }else{
+                    //Got error
+                    error_log("mountpoint info error");
+                }
+            }else{//Check data of the mountpoints (change them to fit current)
+                if($responseMessage["info"]["videoport"] != $bddMP['port'] || $responseMessage["info"]["description"] != $bddMP['name']){
+                    error_log("not same mountpoint info");
+                    $url = $baseUrl."/".$sessionID."/".$handleID;
+                    $transaction = "1234567890";
+                    $body = new \stdClass();
+                    $body->request = 'destroy';
+                    $body->id = $bddMP['id'];
+                    $body->secret = "123";
+                    $data = array('janus' => 'message','body' => $body, 'transaction' => $transaction);
+                    $responseData = $this->sendJanusPost($url, $data);
+                    //create mountpoint
+                    error_log("create mountpoint");
+                    $url = $baseUrl."/".$sessionID."/".$handleID;
+                    $transaction = "1234567890";
+                    $body = new \stdClass();
+                    $body->request = 'create';
+                    $body->id = $bddMP['id'];
+                    //$body->secret = "123";
+                    $body->type = "rtp";
+                    $body->name = "name ".$bddMP['name'];
+                    $body->description = $bddMP['name'];
+                    $body->video = true;
+                    $body->videoport = $bddMP['port'];
+                    $body->videopt = 96;
+                    $body->videortpmap = "H264/90000";
+                    $body->videofmtp = "profile-level-id=42e028\;packetization-mode=1";
+                    $body->secret = "123";
+                    $body->permanent = false;
+                    $data = array('janus' => 'message','body' => $body, 'transaction' => $transaction);
+                    $responseData = $this->sendJanusPost($url, $data);
+                    error_log("http post created");
+                    error_log(print_r($responseData,true));
+                }
+                //delete than recreate
+                //edit port
+                //edit name
+                //edit description
+            }
+        }
 
 
         // Be careful how you consume this data - it has not been escaped and contains untrusted user-supplied content.
         // For example, if you plan to insert it into an HTML DOM, you must escape it on the client side (or use client-side templating).
-        return $response->withJson($mountpoints, 200, JSON_PRETTY_PRINT);
+        return $response->withJson($res, 200, JSON_PRETTY_PRINT);
+    }
+
+    protected function sendJanusPost($url, $data){
+        // use key 'http' even if you send the request to https://...
+        $options = array(
+            'http' => array(
+                'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method'  => 'POST',
+                'content' => json_encode($data)
+            )
+        );
+        $context  = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+        if ($result === FALSE) { /* Handle error */ }
+        // Decode the response
+        $responseData = json_decode($result, TRUE);
+        return $responseData;
     }
 }

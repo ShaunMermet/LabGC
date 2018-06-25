@@ -555,8 +555,8 @@ class MountpointController extends SimpleController
         error_log(print_r($res,true));
         //Create janus session
         //Own adress
-        //$baseUrl = "http://$_SERVER[HTTP_HOST]";
-        $baseUrl = "http://192.168.1.170:8088/janus";
+        $baseUrl = "http://$_SERVER[HTTP_HOST]:8088/janus";
+        //$baseUrl = "http://192.168.1.170:8088/janus";
         $transaction = "1234567890";
         $data = array('janus' => 'create', 'transaction' => $transaction);
         $responseData = $this->sendJanusPost($baseUrl, $data);
@@ -605,9 +605,9 @@ class MountpointController extends SimpleController
                     $body->videoport = $bddMP['port'];
                     $body->videopt = 96;
                     $body->videortpmap = "H264/90000";
-                    $body->videofmtp = "profile-level-id=42e028\;packetization-mode=1";
+                    $body->videofmtp = "profile-level-id=42e028;packetization-mode=1";
                     $body->secret = "123";
-                    $body->permanent = false;
+                    $body->permanent = true;
                     $data = array('janus' => 'message','body' => $body, 'transaction' => $transaction);
                     $responseData = $this->sendJanusPost($url, $data);
                     error_log("http post created");
@@ -625,6 +625,7 @@ class MountpointController extends SimpleController
                     $body->request = 'destroy';
                     $body->id = $bddMP['id'];
                     $body->secret = "123";
+		    $body->permanent = true;
                     $data = array('janus' => 'message','body' => $body, 'transaction' => $transaction);
                     $responseData = $this->sendJanusPost($url, $data);
                     //create mountpoint
@@ -642,9 +643,9 @@ class MountpointController extends SimpleController
                     $body->videoport = $bddMP['port'];
                     $body->videopt = 96;
                     $body->videortpmap = "H264/90000";
-                    $body->videofmtp = "profile-level-id=42e028\;packetization-mode=1";
+                    $body->videofmtp = "profile-level-id=42e028;packetization-mode=1";
                     $body->secret = "123";
-                    $body->permanent = false;
+                    $body->permanent = true;
                     $data = array('janus' => 'message','body' => $body, 'transaction' => $transaction);
                     $responseData = $this->sendJanusPost($url, $data);
                     error_log("http post created");

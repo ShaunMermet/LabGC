@@ -293,8 +293,8 @@ function getStreamlistUpdated(){
 				console.log("Got a list of available streams");
 				console.log(list);
 				for(var mp in list) {
-					console.log("  >> [" + list[mp]["id"] + "] " + list[mp]["description"] + " (" + list[mp]["type"] + ")");
-					$('#streamslist').append("<li><a href='#' id='" + list[mp]["id"] + "'>" + list[mp]["description"] + " (" + list[mp]["type"] + ")" + "</a></li>");
+					console.log("  >> [" + list[mp]["id"] + "] " + list[mp]["name"]);
+					$('#streamslist').append("<li><a href='#' id='" + list[mp]["id"] + "'>" + list[mp]["name"] + "</a></li>");
 				}
 				$('#streamslist a').unbind('click').click(function() {
 					stopStream();
@@ -305,7 +305,7 @@ function getStreamlistUpdated(){
 				});
 				selectedStream = list[0]["id"];
 				$('#watch').removeAttr('disabled').click(startStream);
-				startStream();
+				//startStream();
 			}
 	    },
 	    // Fetch failed
@@ -313,6 +313,10 @@ function getStreamlistUpdated(){
 	        
 	    }
 	);
+	$('#streamset').click(function() {
+		$('#streamset').html($(this).html()).parent().addClass('open');
+		return false;
+	});
 }
 
 function createteststream() {
